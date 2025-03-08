@@ -266,19 +266,73 @@ FILE *fd_gm;
 char gmsg[TOX_MAX_MESSAGE_LENGTH];
 char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
 bool gm_lock=false;
+#define BOT_NAME "bot"
+#define GROUP_NAME "wtfipfs"
 #define CHAT_ID "5CD71E298857CA3B502BE58383E3AF7122FCDE5BF46D5424192234DF83A76A66"
+/** char *CHAT_ID="5CD71E298857CA3B502BE58383E3AF7122FCDE5BF46D5424192234DF83A76A66"; */
 /** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
-uint32_t PUBLIC_GROUP_NUM = 0;
+uint32_t PUBLIC_GROUP_NUM = 100;
 static void join_public_group(Tox *m)
 {
-    if (MY_GROUP_NUM == UINT32_MAX)
-    return;
+    if (PUBLIC_GROUP_NUM == UINT32_MAX)
+        return;
+    if (PUBLIC_GROUP_NUM < 99)
+        return;
+    /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
+    /**     return; */
+    log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM);
+    log_timestamp("%s", CHAT_ID);
+    log_timestamp("%s", (uint8_t *)CHAT_ID);
     // maybe ok
-    char *name="wtfipfs";
-    PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)name, strlen(name), NULL, 0, NULL);
-    log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM)
+    /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)name, strlen(name), NULL, 0, NULL); */
+    Tox_Err_Group_Join err;
+    PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
+    if (PUBLIC_GROUP_NUM == UINT32_MAX)
+    {
+        /** log_timestamp("加入失败，group number: %d", PUBLIC_GROUP_NUM); */
+        log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_join_to_string(err));
+        /** PUBLIC_GROUP_NUM = get_time(); */
+    
+    } else
+        log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
 
 }
+
+static void cb_group_invite2(
+    Tox *m, Tox_Friend_Number friend_number,
+    const uint8_t invite_data[], size_t invite_data_length,
+    const uint8_t group_name[], size_t group_name_length,
+    void *user_data)
+{
+    log_timestamp("收到邀请: %d", friend_number);
+    if (!friend_is_master(m, friend_number)) {
+        log_timestamp("invite is not from master: %d", friend_number);
+        return;
+    }
+    log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM);
+    log_timestamp("开始加入: %d %d", PUBLIC_GROUP_NUM, friend_number);
+    /** log_timestamp("开始加入: %d %s", PUBLIC_GROUP_NUM, friend_number); */
+    /** PUBLIC_GROUP_NUM = tox_group_invite_accept(m, friend_number, invite_data, invite_data_length, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, NULL); */
+    /** log_timestamp("group number: %d", PUBLIC_GROUP_NUM); */
+    /** return; */
+    Tox_Err_Group_Invite_Accept err;
+    PUBLIC_GROUP_NUM = tox_group_invite_accept(m, friend_number, invite_data, invite_data_length, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
+    if (PUBLIC_GROUP_NUM == UINT32_MAX)
+    {
+        log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_invite_accept_to_string(err));
+    
+    } else
+        log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
+    if (tox_group_reconnect(m, PUBLIC_GROUP_NUM, NULL) == true)
+    {
+        log_timestamp("2已加入public group，group number: %d", PUBLIC_GROUP_NUM);
+    } else {
+        log_timestamp("2failed，group number: %d", PUBLIC_GROUP_NUM);
+    }
+
+}
+
+
 #define SM_SH_PATH "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n"
 // # https://github.com/TokTok/c-toxcore/blob/81b1e4f6348124784088591c4fe9ab41e273031d/toxcore/tox.h#L2130
 static void cb_conference_message(
@@ -323,17 +377,17 @@ static void cb_conference_message(
 }
 static void cb_group_message(
     Tox *m, Tox_Group_Number group_number, Tox_Group_Peer_Number peer_id, Tox_Message_Type message_type,
-    const uint8_t message[], size_t message_length, Tox_Group_Message_Id message_id, void *user_data);
+    const uint8_t message[], size_t message_length, Tox_Group_Message_Id message_id, void *user_data)
 {
     log_timestamp("group msg: %d %d %s", group_number, peer_id, message);
     char name[TOX_MAX_NAME_LENGTH];
-    tox_group_peer_get_name(m, group_number, peer_id, (uint8_t *) name, NULL)
+    tox_group_peer_get_name(m, group_number, peer_id, (uint8_t *) name, NULL);
     size_t len = tox_group_peer_get_name_size(m, group_number, peer_id, NULL);
     name[len] = '\0';
 
     char title[TOX_MAX_NAME_LENGTH];
     tox_group_get_name(m, group_number, (uint8_t *) title, NULL);
-    len = tox_group_get_name(m, conference_number, NULL);
+    len = tox_group_get_name_size(m, group_number, NULL);
     title[len] = '\0';
 
     if (group_number == PUBLIC_GROUP_NUM)
@@ -350,7 +404,7 @@ static void cb_group_message(
             system(smsg);
         }
     } else {
-        log_timestamp("忽略来自其他ngc群的消息: %d %s [%s]: %s", idx, title, name, message);
+        log_timestamp("忽略来自其他ngc群的消息: %d %s [%s]: %s", group_number, title, name, message);
     }
 }
 
@@ -364,15 +418,18 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
         // https://github.com/TokTok/c-toxcore/blob/172f279dc0647a538b30e62c96bab8bb1b0c8960/toxcore/tox.h#L4403
 
         log_timestamp("check...send msg to group: %s", gmsg);
-        if (MY_GROUP_NUM != UINT32_MAX)
+        if (PUBLIC_GROUP_NUM != UINT32_MAX)
         {
-          if (tox_group_send_message(m, MY_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, NULL, NULL) != true)
-          {
-           log_timestamp("failed to send msg to group: %s", gmsg);
-          } else {
-              log_timestamp("send msg to group: %s", gmsg);
-          }
+            if (PUBLIC_GROUP_NUM < 99)
+            {
+              if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, NULL) != true)
+              {
+               log_timestamp("failed to send msg to group: %s", gmsg);
+              } else {
+                  log_timestamp("send msg to group: %s", gmsg);
+              }
 
+            }
         }
 
         TOX_ERR_CONFERENCE_SEND_MESSAGE err;
@@ -402,6 +459,14 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
 }
 static void get_msg_from_mt(Tox *m)
 {
+    if (PUBLIC_GROUP_NUM == 100)
+    {
+        PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
+        return;
+    }
+    if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
+        return;
+
     if (gm_lock == true)
     {
         log_timestamp("gm task is busy");
@@ -422,7 +487,7 @@ static void get_msg_from_mt(Tox *m)
         if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
         {
             /** log_timestamp("gm ok"); */
-            join_public_group(m)
+            join_public_group(m);
             break;
         }
         log_timestamp("got msg from mt: %s", gmsgtmp);
@@ -739,7 +804,8 @@ static Tox *init_tox(void)
 
     // add by liqsliu
     tox_callback_conference_message(m, cb_conference_message);
-    tox_callback_group_message(m, cb_public_group_message);
+    tox_callback_group_message(m, cb_group_message);
+    tox_callback_group_invite(m, cb_group_invite2);
     // add by liqsliu
 
 
