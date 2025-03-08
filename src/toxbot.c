@@ -294,7 +294,7 @@ static void cb_conference_message(
             char smsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n";
             strcat(smsg, name);
             strcat(smsg, "\nEOF\n)\" \"$(cat <<EOF\n");
-            strcat(smsg, (char *)string);
+            strcat(smsg, (char *)message);
             strcat(smsg, "\nEOF\n)\"");
             system(smsg);
         }
@@ -307,6 +307,8 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
 {
     if (len >= 1)
     {
+        log_timestamp("send msg to tox: %s", gmsg);
+
         /** Tox_Err_Group_Send_Message error; */
         // https://github.com/TokTok/c-toxcore/blob/172f279dc0647a538b30e62c96bab8bb1b0c8960/toxcore/tox.h#L4403
 
@@ -328,7 +330,8 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
         if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK)
         {
     //			    char mymsg[2048] = "bash /run/user/1000/sm.sh \"ERR\" \"$(cat <<EOF\n";
-            char mymsg[2048] = SM_SH_PATH;
+            /** char mymsg[2048] = SM_SH_PATH; */
+            char mymsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n";
             strcat(mymsg, "ERROR\nEOF\n)\" \"$(cat <<EOF\n");
             if (err == TOX_ERR_CONFERENCE_SEND_MESSAGE_CONFERENCE_NOT_FOUND)
                 strcat(mymsg, "The conference number passed did not designate a valid conference");
@@ -342,23 +345,29 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
             strcat(mymsg, gmsg);
             strcat(mymsg, "\nEOF\n)\"");
 //            system(mymsg);
-            log_timestamp(mymsg)
+            log_timestamp(mymsg);
         }
     }
 }
-FILE *fd_gm
-static void get_msg_from_mt()
+FILE *fd_gm;
+char gmsg[TOX_MAX_MESSAGE_LENGTH];
+char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
+static void get_msg_from_mt(Tox *m)
 {
     /** fd = popen(GM_SH_PATH, "r"); */
-    fd = popen("/run/user/1000/bot/gm.sh", "r");
-    if (fd)
+    fd_gm = popen("/run/user/1000/bot/gm.sh", "r");
+    if (fd_gm)
     {
         gmsg[0] = '\0';
         while (1)
         {
             gmsgtmp[0] = '\0';
-            if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd) == NULL)
+            if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
+            {
+                /** log_timestamp("gm ok"); */
                 break;
+            }
+            log_timestamp("got msg: %s", gmsgtmp);
             if (strlen(gmsgtmp) == 0)
                 continue;
             if (strlen(gmsgtmp) >= TOX_MAX_MESSAGE_LENGTH-1)
@@ -375,7 +384,7 @@ static void get_msg_from_mt()
                 strcat(gmsg, gmsgtmp);
             }
         }
-        pclose(fd);
+        pclose(fd_gm);
         //memset(msgfw, 0, sizeof(msgfw));
         send_to_tox(m, gmsg, strlen(gmsg));
         gmsg[0] = '\0';
@@ -921,7 +930,7 @@ int main(int argc, char **argv)
 
 
 // add by liqsliu
-get_msg_from_mt()
+get_msg_from_mt(m);
 // add by liqsliu
 
         usleep(tox_iteration_interval(m) * 1000);
