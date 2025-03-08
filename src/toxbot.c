@@ -260,6 +260,130 @@ static void cb_group_titlechange(Tox *m, uint32_t groupnumber, uint32_t peernumb
     memcpy(Tox_Bot.g_chats[idx].title, message, length + 1);
     Tox_Bot.g_chats[idx].title_len = length;
 }
+
+// add by liqsliu
+// # https://github.com/TokTok/c-toxcore/blob/81b1e4f6348124784088591c4fe9ab41e273031d/toxcore/tox.h#L2130
+static void cb_conference_message(
+    Tox *m, Tox_Conference_Number conference_number, Tox_Conference_Peer_Number peer_number,
+    Tox_Message_Type type, const uint8_t message[], size_t length, void *user_data)
+{
+    /** int idx = group_index(peer_number); //得到的是发信人在群成员列表的位置*/
+    int idx = group_index(conference_number);
+    if (idx == -1) {
+        return;
+    }
+
+    char name[TOX_MAX_NAME_LENGTH];
+    /** tox_group_peer_get_name(m, conference_number, peer_number, (uint8_t *) name, NULL); */
+    tox_conference_peer_get_name(m, conference_number, peer_number, (uint8_t *) name, NULL);
+    size_t len = tox_conference_peer_get_name_size(m, conference_number, peer_number, NULL);
+    name[len] = '\0';
+
+    char title[TOX_MAX_NAME_LENGTH];
+    tox_conference_get_title(m, conference_number, (uint8_t *) title, NULL);
+    len = tox_conference_get_title_size(m, conference_number, NULL);
+    title[len] = '\0';
+
+
+    if (idx == 0)
+    {
+        log_timestamp("群消息: %s [%s]: %s", title, name, message);
+        if (strcmp(name, "bot") != 0)
+        {
+            /** char smsg[2048] = SM_SH_PATH; */
+            char smsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n";
+            strcat(smsg, name);
+            strcat(smsg, "\nEOF\n)\" \"$(cat <<EOF\n");
+            strcat(smsg, (char *)string);
+            strcat(smsg, "\nEOF\n)\"");
+            system(smsg);
+        }
+    } else {
+        log_timestamp("忽略来自其他群的消息: %d %s [%s]: %s", idx, title, name, message);
+    }
+}
+
+static void send_to_tox(Tox *m, char *gmsg, size_t len)
+{
+    if (len >= 1)
+    {
+        /** Tox_Err_Group_Send_Message error; */
+        // https://github.com/TokTok/c-toxcore/blob/172f279dc0647a538b30e62c96bab8bb1b0c8960/toxcore/tox.h#L4403
+
+        /** log_timestamp("check...send msg to group: %s", gmsg); */
+        /** if (MY_GROUP_NUM != UINT32_MAX) */
+        /** { */
+        /**   if (tox_group_send_message(m, MY_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, NULL, NULL) != true) */
+        /**   { */
+        /**    log_timestamp("failed to send msg to group: %s", gmsg); */
+        /**   } else { */
+        /**       log_timestamp("send msg to group: %s", gmsg); */
+        /**   } */
+        /**  */
+        /** } */
+
+        TOX_ERR_CONFERENCE_SEND_MESSAGE err;
+        //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
+        tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
+        if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK)
+        {
+    //			    char mymsg[2048] = "bash /run/user/1000/sm.sh \"ERR\" \"$(cat <<EOF\n";
+            char mymsg[2048] = SM_SH_PATH;
+            strcat(mymsg, "ERROR\nEOF\n)\" \"$(cat <<EOF\n");
+            if (err == TOX_ERR_CONFERENCE_SEND_MESSAGE_CONFERENCE_NOT_FOUND)
+                strcat(mymsg, "The conference number passed did not designate a valid conference");
+            if (err == TOX_ERR_CONFERENCE_SEND_MESSAGE_TOO_LONG)
+                strcat(mymsg, "The message is too long");
+            if (err == TOX_ERR_CONFERENCE_SEND_MESSAGE_NO_CONNECTION)
+                strcat(mymsg, "The client is not connected to the conference");
+            if (err == TOX_ERR_CONFERENCE_SEND_MESSAGE_FAIL_SEND)
+                strcat(mymsg, "The message packet failed to send");
+            strcat(mymsg, "\n--msg--\n");
+            strcat(mymsg, gmsg);
+            strcat(mymsg, "\nEOF\n)\"");
+//            system(mymsg);
+            log_timestamp(mymsg)
+        }
+    }
+}
+FILE *fd_gm
+static void get_msg_from_mt()
+{
+    /** fd = popen(GM_SH_PATH, "r"); */
+    fd = popen("/run/user/1000/bot/gm.sh", "r");
+    if (fd)
+    {
+        gmsg[0] = '\0';
+        while (1)
+        {
+            gmsgtmp[0] = '\0';
+            if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd) == NULL)
+                break;
+            if (strlen(gmsgtmp) == 0)
+                continue;
+            if (strlen(gmsgtmp) >= TOX_MAX_MESSAGE_LENGTH-1)
+            {
+                send_to_tox(m, gmsg, strlen(gmsg));
+                gmsg[0] = '\0';
+                send_to_tox(m, gmsgtmp, strlen(gmsgtmp));
+            } else {
+                if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH-1)
+                {
+                    send_to_tox(m, gmsg, strlen(gmsg));
+                    gmsg[0] = '\0';
+                }
+                strcat(gmsg, gmsgtmp);
+            }
+        }
+        pclose(fd);
+        //memset(msgfw, 0, sizeof(msgfw));
+        send_to_tox(m, gmsg, strlen(gmsg));
+        gmsg[0] = '\0';
+    }
+
+}
+// add by liqsliu
+
 /* END CALLBACKS */
 
 int save_data(Tox *m, const char *path)
@@ -540,6 +664,12 @@ static Tox *init_tox(void)
     tox_callback_conference_invite(m, cb_group_invite);
     tox_callback_conference_title(m, cb_group_titlechange);
 
+    // add by liqsliu
+    tox_callback_conference_message(m, cb_conference_message);
+    /** tox_callback_group_message(m, cb_public_group_message); */
+    // add by liqsliu
+
+
     size_t s_len = tox_self_get_status_message_size(m);
 
     if (s_len == 0) {
@@ -788,6 +918,11 @@ int main(int argc, char **argv)
         }
 
         tox_iterate(m, NULL);
+
+
+// add by liqsliu
+get_msg_from_mt()
+// add by liqsliu
 
         usleep(tox_iteration_interval(m) * 1000);
 
