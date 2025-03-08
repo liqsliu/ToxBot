@@ -267,6 +267,7 @@ static void cb_conference_message(
     Tox *m, Tox_Conference_Number conference_number, Tox_Conference_Peer_Number peer_number,
     Tox_Message_Type type, const uint8_t message[], size_t length, void *user_data)
 {
+    log_timestamp("group msg: %d %d %s", conference_number, peer_number, message);
     /** int idx = group_index(peer_number); //得到的是发信人在群成员列表的位置*/
     int idx = group_index(conference_number);
     if (idx == -1) {
@@ -352,43 +353,59 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
 FILE *fd_gm;
 char gmsg[TOX_MAX_MESSAGE_LENGTH];
 char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
+bool gm_lock=false;
 static void get_msg_from_mt(Tox *m)
 {
+    if (gm_lock == true)
+    {
+        log_timestamp("gm task is busy");
+        return;
+    } else
+        gm_lock = true;
     /** fd = popen(GM_SH_PATH, "r"); */
     fd_gm = popen("/run/user/1000/bot/gm.sh", "r");
-    if (fd_gm)
+    if (fd_gm == NULL)
     {
-        gmsg[0] = '\0';
-        while (1)
-        {
-            gmsgtmp[0] = '\0';
-            if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
-            {
-                /** log_timestamp("gm ok"); */
-                break;
-            }
-            log_timestamp("got msg: %s", gmsgtmp);
-            if (strlen(gmsgtmp) == 0)
-                continue;
-            if (strlen(gmsgtmp) >= TOX_MAX_MESSAGE_LENGTH-1)
-            {
-                send_to_tox(m, gmsg, strlen(gmsg));
-                gmsg[0] = '\0';
-                send_to_tox(m, gmsgtmp, strlen(gmsgtmp));
-            } else {
-                if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH-1)
-                {
-                    send_to_tox(m, gmsg, strlen(gmsg));
-                    gmsg[0] = '\0';
-                }
-                strcat(gmsg, gmsgtmp);
-            }
-        }
-        pclose(fd_gm);
-        //memset(msgfw, 0, sizeof(msgfw));
-        send_to_tox(m, gmsg, strlen(gmsg));
-        gmsg[0] = '\0';
+        log_timestamp("不能执行gm.sh");
+        return;
     }
+    gmsg[0] = '\0';
+    while (1)
+    {
+        gmsgtmp[0] = '\0';
+        if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
+        {
+            /** log_timestamp("gm ok"); */
+            break;
+        }
+        log_timestamp("got msg from mt: %s", gmsgtmp);
+        if (strlen(gmsgtmp) == 0)
+            continue;
+        if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH)
+        {
+            send_to_tox(m, gmsg, strlen(gmsg));
+            gmsg[0] = '\0';
+        }
+        strcat(gmsg, gmsgtmp);
+
+        /** if (strlen(gmsgtmp) >= TOX_MAX_MESSAGE_LENGTH-1) */
+        /** { */
+        /**     send_to_tox(m, gmsg, strlen(gmsg)); */
+        /**     gmsg[0] = '\0'; */
+        /**     send_to_tox(m, gmsgtmp, strlen(gmsgtmp)); */
+        /** } else { */
+        /**     if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH-1) */
+        /**     { */
+        /**         send_to_tox(m, gmsg, strlen(gmsg)); */
+        /**         gmsg[0] = '\0'; */
+        /**     } */
+        /**     strcat(gmsg, gmsgtmp); */
+        /** } */
+    }
+    //memset(msgfw, 0, sizeof(msgfw));
+    send_to_tox(m, gmsg, strlen(gmsg));
+    pclose(fd_gm);
+    gm_lock = false;
 
 }
 // add by liqsliu
