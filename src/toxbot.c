@@ -325,7 +325,7 @@ static void *my_daemon(void *mv)
             log_timestamp("shell exit");
             break;
         }
-        send_to_tox(m, gmsg, sizeof(gmsg));
+        send_msg_from_mt_to_tox(m, gmsg, sizeof(gmsg));
 
     }
     pclose(fd_gm);
@@ -509,7 +509,7 @@ static void cb_group_message(
     }
 }
 
-void send_to_tox(Tox *m, char *gmsg, size_t len)
+static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
 {
     if (len >= 1)
     {
