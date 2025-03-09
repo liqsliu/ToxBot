@@ -1183,11 +1183,11 @@ if (rc != 0)
 
 // add by liqsliu
 /** get_msg_from_mt(m); */
-if (joined_group == false)
-{
-    if (PUBLIC_GROUP_NUM != Tox_Bot.last_connected)
-        join_public_group(m);
-}
+/* if (joined_group == false) */
+/* { */
+/*     if (PUBLIC_GROUP_NUM != Tox_Bot.last_connected) */
+/*         join_public_group(m); */
+/* } */
 // add by liqsliu
 
         usleep(tox_iteration_interval(m) * 1000);
