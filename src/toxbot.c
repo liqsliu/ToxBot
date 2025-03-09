@@ -324,13 +324,14 @@ static void cb_group_invite2(
     if (tox_group_reconnect(m, PUBLIC_GROUP_NUM, NULL) == true)
     {
         log_timestamp("2已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        /** char public_key[TOX_PUBLIC_KEY_SIZE]; */
-        char public_key[32];
+        char public_key[TOX_PUBLIC_KEY_SIZE];
         log_timestamp("%d", sizeof(public_key));
         bool res = tox_group_self_get_public_key(m, PUBLIC_GROUP_NUM, (uint8_t *)public_key, NULL);
-        log_timestamp("%d %x", sizeof(public_key), public_key);
+        log_timestamp("%d %X", sizeof(public_key), public_key);
+        log_timestamp("%d %lX", sizeof(public_key), public_key);
+        log_timestamp("%d %llX", sizeof(public_key), public_key);
         sleep(3);
-        log_timestamp("%x %s", res, public_key);
+        log_timestamp("res: %x", res);
     } else {
         log_timestamp("2failed，group number: %d", PUBLIC_GROUP_NUM);
     }
