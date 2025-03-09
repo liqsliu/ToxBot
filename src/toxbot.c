@@ -552,7 +552,7 @@ static void *my_daemon(void *mv)
                 break;
             }
             log_timestamp("got msg: %s", gmsg);
-            send_msg_from_mt_to_tox(m, gmsg, sizeof(gmsg));
+            send_msg_from_mt_to_tox(m, gmsg, strlen(gmsg));
 
         }
         pclose(fd_gm);
