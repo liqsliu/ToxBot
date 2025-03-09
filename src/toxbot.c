@@ -327,7 +327,7 @@ static void cb_group_invite2(
         char public_key[TOX_PUBLIC_KEY_SIZE];
         bool res = tox_group_self_get_public_key(m, PUBLIC_GROUP_NUM, (uint8_t *)public_key, NULL);
         log_timestamp("%x", public_key);
-        sleep(5)
+        sleep(5);
         log_timestamp("%x %s", res, public_key);
     } else {
         log_timestamp("2failed，group number: %d", PUBLIC_GROUP_NUM);
