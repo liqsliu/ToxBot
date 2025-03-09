@@ -445,23 +445,6 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
     if (len >= 1)
     {
         log_timestamp("send msg to tox: %s", gmsg);
-
-        /** Tox_Err_Group_Send_Message error; */
-        // https://github.com/TokTok/c-toxcore/blob/172f279dc0647a538b30e62c96bab8bb1b0c8960/toxcore/tox.h#L4403
-
-        log_timestamp("check...send msg to group: %s", gmsg);
-        if (PUBLIC_GROUP_NUM != UINT32_MAX)
-        {
-          if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, NULL) != true)
-          {
-           log_timestamp("failed to send msg to group: %s", gmsg);
-           rejoin_public_group(m, PUBLIC_GROUP_NUM);
-          } else {
-              log_timestamp("send msg to group: %s", gmsg);
-          }
-
-        }
-
         TOX_ERR_CONFERENCE_SEND_MESSAGE err;
         //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
         tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
@@ -485,6 +468,23 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
 //            system(mymsg);
             log_timestamp(mymsg);
         }
+
+        /** Tox_Err_Group_Send_Message error; */
+        // https://github.com/TokTok/c-toxcore/blob/172f279dc0647a538b30e62c96bab8bb1b0c8960/toxcore/tox.h#L4403
+
+        log_timestamp("check...send msg to group: %s", gmsg);
+        if (PUBLIC_GROUP_NUM != UINT32_MAX)
+        {
+          if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, NULL) != true)
+          {
+           log_timestamp("failed to send msg to group: %s", gmsg);
+           rejoin_public_group(m, PUBLIC_GROUP_NUM);
+          } else {
+              log_timestamp("send msg to group: %s", gmsg);
+          }
+
+        }
+
     }
 }
 static void get_msg_from_mt(Tox *m)
