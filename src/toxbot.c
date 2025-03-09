@@ -277,7 +277,7 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
 {
     sleep(3);
     if(tox_group_is_connected(m, gn, NULL) == true)
-        log_timestamp("connected, really?")
+        log_timestamp("connected, really?");
     if(true)
     {
         if (tox_group_reconnect(m, gn, NULL) == true)
