@@ -311,7 +311,7 @@ static void *my_daemon(void *mv)
     if (fd_gm == NULL)
     {
         log_timestamp("不能执行gm.sh");
-        return;
+        return 1;
     }
     char gmsg[TOX_MAX_MESSAGE_LENGTH];
     char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
