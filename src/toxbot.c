@@ -274,32 +274,32 @@ bool gm_lock=false;
 uint32_t PUBLIC_GROUP_NUM=0;
 bool joined_group=false;
 #include <pthread.h>
-/** #include <curl/curl.h> */
-/** static void *my_daemon(void *mv) */
-/** { */
-/**     Tox *m = (Tox *)mv; */
-/**     CURL *curl; */
-/**     CURLcode res; */
-/**  */
-/**     curl = curl_easy_init(); */
-/**     curl_easy_setopt(curl, CURLOPT_URL, "https://g.co"); */
-/**     [> curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); <] */
-/**     if(curl) { */
-/**         while(1) */
-/**         { */
-/**             sleep(1); */
-/**             log_timestamp("my daemon is running..."); */
-/**             res = curl_easy_perform(curl); */
-/**             /* Check for errors */ */
-/**             if(res != CURLE_OK) */
-/**                 fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res)); */
-/**         } */
-/**         /* always cleanup */ */
-/**         curl_easy_cleanup(curl); */
-/**     } */
-/**     log_timestamp("线程终止"); */
-/**     return 0; */
-/** } */
+/* #include <curl/curl.h> */
+/* static void *my_daemon(void *mv) */
+/* { */
+/*     Tox *m = (Tox *)mv; */
+/*     CURL *curl; */
+/*     CURLcode res; */
+/*  */
+/*     curl = curl_easy_init(); */
+/*     curl_easy_setopt(curl, CURLOPT_URL, "https://g.co"); */
+/*     [>* curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); <] */
+/*     if(curl) { */
+/*         while(1) */
+/*         { */
+/*             sleep(1); */
+/*             log_timestamp("my daemon is running..."); */
+/*             res = curl_easy_perform(curl); */
+/*             [> Check for errors <] */
+/*             if(res != CURLE_OK) */
+/*                 fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res)); */
+/*         } */
+/*         [> always cleanup <] */
+/*         curl_easy_cleanup(curl); */
+/*     } */
+/*     log_timestamp("线程终止"); */
+/*     return 0; */
+/* } */
 
 static void *my_daemon(void *mv)
 {
