@@ -383,7 +383,7 @@ static void cb_group_invite2(
     /** return; */
     if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == true)
     {
-        res = tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL);
+        bool res = tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL);
         log_timestamp("尝试断开: %d", res);
         sleep(1);
     }
