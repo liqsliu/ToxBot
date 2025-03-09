@@ -323,7 +323,7 @@ static void *my_daemon(void *mv)
         if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
         {
             log_timestamp("shell exit");
-            break
+            break;
         }
         send_to_tox(m, gmsg, strlen(gmsg));
 
