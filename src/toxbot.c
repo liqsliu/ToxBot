@@ -294,7 +294,29 @@ static void join_public_group(Tox *m)
         /** PUBLIC_GROUP_NUM = get_time(); */
     
     } else
+    {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
+        if(tox_group_is_connected == false)
+        {
+            if (tox_group_reconnect(m, PUBLIC_GROUP_NUM, NULL) == true)
+            {
+                log_timestamp("2已加入public group，group number: %d", PUBLIC_GROUP_NUM);
+                char public_key[TOX_PUBLIC_KEY_SIZE];
+                log_timestamp("%d", sizeof(public_key));
+                bool res = tox_group_self_get_public_key(m, PUBLIC_GROUP_NUM, (uint8_t *)public_key, NULL);
+                log_timestamp("%d %X", sizeof(public_key), public_key);
+                for (int i=0; i<sizeof(public_key); i++)
+                {
+                    printf("%hhX", public_key[i])
+                }
+                sleep(3);
+                log_timestamp("res: %x", res);
+            } else {
+                log_timestamp("2failed，group number: %d", PUBLIC_GROUP_NUM);
+            }
+        }
+    }
+
 }
 
 static void cb_group_invite2(
