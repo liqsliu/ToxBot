@@ -10,7 +10,7 @@
 *.orig
 *.*vim*
 toxbot
-masterkeys
+# masterkeys
 blockedkeys
 COPYING
 *.tox
