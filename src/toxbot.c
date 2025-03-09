@@ -273,6 +273,22 @@ bool gm_lock=false;
 /** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
 uint32_t PUBLIC_GROUP_NUM=0;
 bool joined_group=false;
+#include <pthread.h>
+
+static void *my_daemon(void *mv)
+{
+    Tox m = (Tox *)mv;
+    while(1)
+    {
+        sleep(3);
+        log_timestamp("my daemon is running...")
+    }
+    log_timestamp("线程终止")
+    return 0;
+}
+
+
+
 static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
 {
     sleep(3);
@@ -502,6 +518,12 @@ static void get_msg_from_mt(Tox *m)
             if (joined_group == false)
             {
                 PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
+                pthread_t pthreads[1];
+                rc = pthread_create(&pthreads[0], NULL, my_daemon, (void *)m);
+                if (rc != 0)
+                {
+                    log_timestamp("无法创建线程")
+                }
                 return;
             }
         }
@@ -516,6 +538,7 @@ static void get_msg_from_mt(Tox *m)
         return;
     } else
         gm_lock = true;
+
     /** fd = popen(GM_SH_PATH, "r"); */
     fd_gm = popen("/run/user/1000/bot/gm.sh", "r");
     if (fd_gm == NULL)
@@ -529,7 +552,7 @@ static void get_msg_from_mt(Tox *m)
         gmsgtmp[0] = '\0';
         if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
         {
-            /** log_timestamp("gm ok"); */
+            log_timestamp("gm ok");
             /** join_public_group(m); */
             break;
         }
