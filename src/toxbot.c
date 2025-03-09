@@ -284,7 +284,6 @@ static void join_public_group(Tox *m)
     log_timestamp("%s", CHAT_ID);
     log_timestamp("%s", (uint8_t *)CHAT_ID);
     log_timestamp("%s", (uint8_t *)hex_string_to_bin(CHAT_ID));
-    // maybe ok
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)name, strlen(name), NULL, 0, NULL); */
     Tox_Err_Group_Join err;
     PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
