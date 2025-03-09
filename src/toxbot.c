@@ -305,12 +305,12 @@ static void join_public_group(Tox *m)
     log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM);
     log_timestamp("%s", CHAT_ID);
     log_timestamp("%s", (uint8_t *)CHAT_ID);
-    key_bin = hex_string_to_bin(CHAT_ID);
-    log_timestamp("%s", (uint8_t *)key_bin);
+    uint8_t *key_bin = hex_string_to_bin(CHAT_ID);
+    log_timestamp("%s", key_bin);
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)name, strlen(name), NULL, 0, NULL); */
     Tox_Err_Group_Join err;
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err); */
-    PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
+    PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)key_bin, BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
     {
         /** log_timestamp("加入失败，group number: %d", PUBLIC_GROUP_NUM); */
