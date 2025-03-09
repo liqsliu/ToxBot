@@ -304,6 +304,7 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
 
 static void join_public_group(Tox *m)
 {
+    log_timestamp("开始加入: %s", CHAT_ID);
     joined_group = true;
     sleep(1);
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
@@ -312,7 +313,6 @@ static void join_public_group(Tox *m)
     /**     return; */
     /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
     /** log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM); */
-    log_timestamp("开始加入: %s", CHAT_ID);
     log_timestamp("%s", (uint8_t *)CHAT_ID);
     uint8_t *key_bin = hex_string_to_bin(CHAT_ID);
     log_timestamp("%s", key_bin);
