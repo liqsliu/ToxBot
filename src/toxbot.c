@@ -452,16 +452,14 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
         log_timestamp("check...send msg to group: %s", gmsg);
         if (PUBLIC_GROUP_NUM != UINT32_MAX)
         {
-            if (PUBLIC_GROUP_NUM < 99)
-            {
-              if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, NULL) != true)
-              {
-               log_timestamp("failed to send msg to group: %s", gmsg);
-              } else {
-                  log_timestamp("send msg to group: %s", gmsg);
-              }
+          if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, NULL) != true)
+          {
+           log_timestamp("failed to send msg to group: %s", gmsg);
+           rejoin_public_group(m, PUBLIC_GROUP_NUM)
+          } else {
+              log_timestamp("send msg to group: %s", gmsg);
+          }
 
-            }
         }
 
         TOX_ERR_CONFERENCE_SEND_MESSAGE err;
