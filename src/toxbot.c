@@ -304,11 +304,11 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
 
 static void join_public_group(Tox *m)
 {
-    log_timestamp("开始加入: %s", CHAT_ID);
     joined_group = true;
+    log_timestamp("开始加入: %s", CHAT_ID);
     sleep(1);
-    if (PUBLIC_GROUP_NUM == UINT32_MAX)
-        return;
+    /** if (PUBLIC_GROUP_NUM == UINT32_MAX) */
+    /**     return; */
     /** if (joined_group == true) */
     /**     return; */
     /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
@@ -494,7 +494,7 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
 }
 static void get_msg_from_mt(Tox *m)
 {
-    if (joined_group = false)
+    if (joined_group == false)
     {
         if (PUBLIC_GROUP_NUM == 0)
         {
