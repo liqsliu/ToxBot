@@ -262,9 +262,6 @@ static void cb_group_titlechange(Tox *m, uint32_t groupnumber, uint32_t peernumb
 }
 
 // add by liqsliu
-FILE *fd_gm;
-char gmsg[TOX_MAX_MESSAGE_LENGTH];
-char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
 bool gm_lock=false;
 #define BOT_NAME "bot"
 #define GROUP_NAME "wtfipfs"
@@ -309,11 +306,29 @@ static void *my_daemon(void *mv)
         log_timestamp("等待tox初始化完成");
     }
     Tox *m = (Tox *)mv;
+    FILE *fd_gm;
+    fd_gm = popen("/run/user/1000/bot/gm_stream.sh", "r");
+    if (fd_gm == NULL)
+    {
+        log_timestamp("不能执行gm.sh");
+        return;
+    }
+    char gmsg[TOX_MAX_MESSAGE_LENGTH];
+    char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
     while(1)
     {
         sleep(1);
         log_timestamp("my daemon is running...");
+        gmsg[0] = '\0';
+        if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
+        {
+            log_timestamp("shell exit");
+            break
+        }
+        send_to_tox(m, gmsg, strlen(gmsg));
+
     }
+    pclose(fd_gm);
     log_timestamp("线程终止");
     return 0;
 }
