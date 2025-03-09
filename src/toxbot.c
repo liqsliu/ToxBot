@@ -274,18 +274,51 @@ bool gm_lock=false;
 uint32_t PUBLIC_GROUP_NUM=0;
 bool joined_group=false;
 #include <pthread.h>
+/** #include <curl/curl.h> */
+/** static void *my_daemon(void *mv) */
+/** { */
+/**     Tox *m = (Tox *)mv; */
+/**     CURL *curl; */
+/**     CURLcode res; */
+/**  */
+/**     curl = curl_easy_init(); */
+/**     curl_easy_setopt(curl, CURLOPT_URL, "https://g.co"); */
+/**     [> curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); <] */
+/**     if(curl) { */
+/**         while(1) */
+/**         { */
+/**             sleep(1); */
+/**             log_timestamp("my daemon is running..."); */
+/**             res = curl_easy_perform(curl); */
+/**             /* Check for errors */ */
+/**             if(res != CURLE_OK) */
+/**                 fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res)); */
+/**         } */
+/**         /* always cleanup */ */
+/**         curl_easy_cleanup(curl); */
+/**     } */
+/**     log_timestamp("线程终止"); */
+/**     return 0; */
+/** } */
 
 static void *my_daemon(void *mv)
 {
+    while(PUBLIC_GROUP_NUM = Tox_Bot.last_connected)
+    {
+        sleep(1);
+        log_timestamp("等待tox初始化完成");
+    }
     Tox *m = (Tox *)mv;
     while(1)
     {
-        sleep(3);
+        sleep(1);
         log_timestamp("my daemon is running...");
     }
     log_timestamp("线程终止");
     return 0;
 }
+
+
 
 
 
@@ -513,25 +546,10 @@ static void get_msg_from_mt(Tox *m)
 {
     if (joined_group == false)
     {
-        if (PUBLIC_GROUP_NUM == 0)
-        {
-            if (joined_group == false)
-            {
-                PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
-                pthread_t pthreads[1];
-                int rc = pthread_create(&pthreads[0], NULL, my_daemon, (void *)m);
-                if (rc != 0)
-                {
-                    log_timestamp("无法创建线程");
-                }
-                return;
-            }
-        }
         if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
             return;
         join_public_group(m);
     }
-
     if (gm_lock == true)
     {
         log_timestamp("gm task is busy");
@@ -552,7 +570,7 @@ static void get_msg_from_mt(Tox *m)
         gmsgtmp[0] = '\0';
         if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
         {
-            log_timestamp("gm ok");
+            /** log_timestamp("gm ok"); */
             /** join_public_group(m); */
             break;
         }
@@ -1096,6 +1114,16 @@ int main(int argc, char **argv)
     load_conferences(m);
     print_profile_info(m);
 
+// add by liqsliu
+PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
+pthread_t pthreads[1];
+int rc = pthread_create(&pthreads[0], NULL, my_daemon, (void *)m);
+if (rc != 0)
+{
+    log_timestamp("无法创建线程");
+}
+// add by liqsliu
+
     time_t cur_time = get_time();
 
     uint64_t last_friend_purge = cur_time;
@@ -1126,7 +1154,12 @@ int main(int argc, char **argv)
 
 
 // add by liqsliu
-get_msg_from_mt(m);
+/** get_msg_from_mt(m); */
+if (joined_group == false)
+{
+    if (PUBLIC_GROUP_NUM != Tox_Bot.last_connected)
+        join_public_group(m);
+}
 // add by liqsliu
 
         usleep(tox_iteration_interval(m) * 1000);
