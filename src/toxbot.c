@@ -530,30 +530,35 @@ static void *my_daemon(void *mv)
     }
     Tox *m = (Tox *)mv;
     FILE *fd_gm;
-    fd_gm = popen("/run/user/1000/bot/gm_stream.sh", "r");
-    if (fd_gm == NULL)
-    {
-        log_timestamp("不能执行gm.sh");
-        return 0;
-    }
     char gmsg[TOX_MAX_MESSAGE_LENGTH];
     char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
     while(1)
     {
-        /* sleep(1); */
-        log_timestamp("my daemon is running...");
-        gmsg[0] = '\0';
-        if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
+        fd_gm = popen("/run/user/1000/bot/gm_stream.sh", "r");
+        if (fd_gm == NULL)
         {
-            log_timestamp("got msg: %s", gmsg);
-            log_timestamp("shell exit");
-            break;
+            log_timestamp("不能执行gm.sh");
+            return 0;
         }
-        log_timestamp("got msg: %s", gmsg);
-        send_msg_from_mt_to_tox(m, gmsg, sizeof(gmsg));
+        log_timestamp("gm.sh is running...");
+        while(1)
+        {
+            /* sleep(1); */
+            log_timestamp("my daemon is running...");
+            gmsg[0] = '\0';
+            if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
+            {
+                log_timestamp("got msg: %s", gmsg);
+                log_timestamp("shell exit");
+                break;
+            }
+            log_timestamp("got msg: %s", gmsg);
+            send_msg_from_mt_to_tox(m, gmsg, sizeof(gmsg));
 
+        }
+        pclose(fd_gm);
+        log_timestamp("shell终止");
     }
-    pclose(fd_gm);
     log_timestamp("线程终止");
     return 0;
 }
