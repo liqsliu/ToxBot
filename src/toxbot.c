@@ -294,11 +294,12 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
                 printf("%hhX", public_key[i]);
             }
             printf("\n");
-            joined_group = true
+            joined_group = true;
         } else {
             log_timestamp("2failed，group number: %d", gn);
         }
     }
+    log_timestamp("rejoined ok");
 }
 
 static void join_public_group(Tox *m)
