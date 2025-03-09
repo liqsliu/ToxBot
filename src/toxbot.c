@@ -330,7 +330,7 @@ static void cb_group_invite2(
         log_timestamp("%d %X", sizeof(public_key), public_key);
         for (int i=0; i<sizeof(public_key); i++)
         {
-            printf("%hhX", public_key[i])
+            printf("%hhX", public_key[i]);
         }
         sleep(3);
         log_timestamp("res: %x", res);
