@@ -294,9 +294,9 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
                 printf("%hhX", public_key[i]);
             }
             printf("\n");
-            joined_group = true;
         } else {
             log_timestamp("2failed，group number: %d", gn);
+            joined_group = false;
         }
     }
     log_timestamp("rejoined ok");
@@ -304,6 +304,8 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
 
 static void join_public_group(Tox *m)
 {
+    joined_group = true;
+    sleep(1);
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
         return;
     if (joined_group == true)
@@ -323,6 +325,7 @@ static void join_public_group(Tox *m)
         /** log_timestamp("加入失败，group number: %d", PUBLIC_GROUP_NUM); */
         log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_join_to_string(err));
         /** PUBLIC_GROUP_NUM = get_time(); */
+        joined_group = false;
     
     } else
     {
@@ -355,6 +358,7 @@ static void cb_group_invite2(
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
     {
         log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_invite_accept_to_string(err));
+        joined_group = false;
     
     } else
     {
@@ -490,16 +494,20 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
 }
 static void get_msg_from_mt(Tox *m)
 {
-    if (PUBLIC_GROUP_NUM == 0)
+    if (joined_group = false)
     {
-        if (joined_group == false)
+        if (PUBLIC_GROUP_NUM == 0)
         {
-            PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
-            return;
+            if (joined_group == false)
+            {
+                PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
+                return;
+            }
         }
+        if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
+            return;
+        join_public_group(m);
     }
-    if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
-        return;
 
     if (gm_lock == true)
     {
@@ -521,7 +529,7 @@ static void get_msg_from_mt(Tox *m)
         if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
         {
             /** log_timestamp("gm ok"); */
-            join_public_group(m);
+            /** join_public_group(m); */
             break;
         }
         log_timestamp("got msg from mt: %s", gmsgtmp);
