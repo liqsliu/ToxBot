@@ -292,6 +292,7 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
             {
                 printf("%hhX", public_key[i]);
             }
+            printf("\n");
         } else {
             log_timestamp("2failed，group number: %d", gn);
         }
