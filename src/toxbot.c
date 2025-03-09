@@ -277,7 +277,7 @@ bool joined_group=false;
 
 static void *my_daemon(void *mv)
 {
-    Tox m = (Tox *)mv;
+    Tox *m = (Tox *)mv;
     while(1)
     {
         sleep(3);
