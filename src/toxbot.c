@@ -545,9 +545,11 @@ static void *my_daemon(void *mv)
         gmsg[0] = '\0';
         if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
         {
+            log_timestamp("got msg: %s", gmsg);
             log_timestamp("shell exit");
             break;
         }
+        log_timestamp("got msg: %s", gmsg);
         send_msg_from_mt_to_tox(m, gmsg, sizeof(gmsg));
 
     }
