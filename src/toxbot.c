@@ -271,10 +271,14 @@ bool gm_lock=false;
 #define CHAT_ID "5CD71E298857CA3B502BE58383E3AF7122FCDE5BF46D5424192234DF83A76A66"
 /** char *CHAT_ID="5CD71E298857CA3B502BE58383E3AF7122FCDE5BF46D5424192234DF83A76A66"; */
 /** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
-uint32_t PUBLIC_GROUP_NUM = 100;
+uint32_t PUBLIC_GROUP_NUM=0;
+bool joined_group=false;
 static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
 {
-    /** if(tox_group_is_connected(m, gn, NULL) == false) */
+    sleep(3);
+    if(tox_group_is_connected(m, gn, NULL) == true)
+        log_timestamp("connected, really?")
+    if(true)
     {
         if (tox_group_reconnect(m, gn, NULL) == true)
         {
@@ -282,13 +286,12 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
             char public_key[TOX_PUBLIC_KEY_SIZE];
             log_timestamp("%d", sizeof(public_key));
             bool res = tox_group_self_get_public_key(m, gn, (uint8_t *)public_key, NULL);
+            log_timestamp("res: %x", res);
             log_timestamp("%d %X", sizeof(public_key), public_key);
             for (int i=0; i<sizeof(public_key); i++)
             {
                 printf("%hhX", public_key[i]);
             }
-            sleep(3);
-            log_timestamp("res: %x", res);
         } else {
             log_timestamp("2failed，group number: %d", gn);
         }
@@ -299,7 +302,7 @@ static void join_public_group(Tox *m)
 {
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
         return;
-    if (PUBLIC_GROUP_NUM < 99)
+    if (joined_group == true)
         return;
     /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
     log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM);
@@ -484,10 +487,13 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
 }
 static void get_msg_from_mt(Tox *m)
 {
-    if (PUBLIC_GROUP_NUM == 100)
+    if (PUBLIC_GROUP_NUM == 0)
     {
-        PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
-        return;
+        if (joined_group == false)
+        {
+            PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
+            return;
+        }
     }
     if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
         return;
