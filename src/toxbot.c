@@ -279,7 +279,6 @@ static void join_public_group(Tox *m)
     if (PUBLIC_GROUP_NUM < 99)
         return;
     /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
-    /**     return; */
     log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM);
     log_timestamp("%s", CHAT_ID);
     log_timestamp("%s", (uint8_t *)CHAT_ID);
