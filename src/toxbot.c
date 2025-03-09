@@ -296,7 +296,7 @@ static void join_public_group(Tox *m)
     } else
     {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        if(tox_group_is_connected(m, PUBLIC_GROUP_NUM) == false)
+        if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == false)
         {
             if (tox_group_reconnect(m, PUBLIC_GROUP_NUM, NULL) == true)
             {
