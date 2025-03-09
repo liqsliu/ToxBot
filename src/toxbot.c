@@ -334,7 +334,7 @@ static void cb_group_invite2(
         {
             printf("%hhX", public_key[i]);
         }
-        printf("\n")
+        printf("\n");
         sleep(3);
     } else {
         log_timestamp("2failed，group number: %d", PUBLIC_GROUP_NUM);
