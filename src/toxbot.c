@@ -455,7 +455,7 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
           if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, NULL) != true)
           {
            log_timestamp("failed to send msg to group: %s", gmsg);
-           rejoin_public_group(m, PUBLIC_GROUP_NUM)
+           rejoin_public_group(m, PUBLIC_GROUP_NUM);
           } else {
               log_timestamp("send msg to group: %s", gmsg);
           }
