@@ -320,7 +320,7 @@ static void join_public_group(Tox *m)
     } else
     {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        rejoin_public_group(PUBLIC_GROUP_NUM)
+        rejoin_public_group(PUBLIC_GROUP_NUM);
     }
     free(key_bin);
 
@@ -352,7 +352,7 @@ static void cb_group_invite2(
     } else
     {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        rejoin_public_group(PUBLIC_GROUP_NUM)
+        rejoin_public_group(PUBLIC_GROUP_NUM);
     }
 
 }
