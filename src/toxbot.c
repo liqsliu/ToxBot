@@ -272,7 +272,7 @@ bool gm_lock=false;
 /** char *CHAT_ID="5CD71E298857CA3B502BE58383E3AF7122FCDE5BF46D5424192234DF83A76A66"; */
 /** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
 uint32_t PUBLIC_GROUP_NUM = 100;
-static void rejoin_public_group(Tox_Group_Number gn)
+static void rejoin_public_group(Tox *m,, Tox_Group_Number gn)
 {
     /** if(tox_group_is_connected(m, gn, NULL) == false) */
     {
@@ -320,7 +320,7 @@ static void join_public_group(Tox *m)
     } else
     {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        rejoin_public_group(PUBLIC_GROUP_NUM);
+        rejoin_public_group(m, PUBLIC_GROUP_NUM);
     }
     free(key_bin);
 
@@ -352,7 +352,7 @@ static void cb_group_invite2(
     } else
     {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        rejoin_public_group(PUBLIC_GROUP_NUM);
+        rejoin_public_group(m, PUBLIC_GROUP_NUM);
     }
 
 }
