@@ -522,7 +522,7 @@ static void get_msg_from_mt(Tox *m)
                 rc = pthread_create(&pthreads[0], NULL, my_daemon, (void *)m);
                 if (rc != 0)
                 {
-                    log_timestamp("无法创建线程")
+                    log_timestamp("无法创建线程");
                 }
                 return;
             }
