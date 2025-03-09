@@ -543,7 +543,6 @@ static void *my_daemon(void *mv)
         log_timestamp("gm.sh is running...");
         while(1)
         {
-            /* sleep(1); */
             log_timestamp("my daemon is running...");
             gmsg[0] = '\0';
             if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
@@ -558,6 +557,7 @@ static void *my_daemon(void *mv)
         }
         pclose(fd_gm);
         log_timestamp("shell终止");
+        sleep(1);
     }
     log_timestamp("线程终止");
     return 0;
