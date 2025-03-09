@@ -565,58 +565,58 @@ static void get_msg_from_mt(Tox *m)
             return;
         join_public_group(m);
     }
-    if (gm_lock == true)
-    {
-        log_timestamp("gm task is busy");
-        return;
-    } else
-        gm_lock = true;
-
-    /** fd = popen(GM_SH_PATH, "r"); */
-    fd_gm = popen("/run/user/1000/bot/gm.sh", "r");
-    if (fd_gm == NULL)
-    {
-        log_timestamp("不能执行gm.sh");
-        return;
-    }
-    gmsg[0] = '\0';
-    while (1)
-    {
-        gmsgtmp[0] = '\0';
-        if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
-        {
-            /** log_timestamp("gm ok"); */
-            /** join_public_group(m); */
-            break;
-        }
-        log_timestamp("got msg from mt: %s", gmsgtmp);
-        if (strlen(gmsgtmp) == 0)
-            continue;
-        if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH)
-        {
-            send_to_tox(m, gmsg, strlen(gmsg));
-            gmsg[0] = '\0';
-        }
-        strcat(gmsg, gmsgtmp);
-
-        /** if (strlen(gmsgtmp) >= TOX_MAX_MESSAGE_LENGTH-1) */
-        /** { */
-        /**     send_to_tox(m, gmsg, strlen(gmsg)); */
-        /**     gmsg[0] = '\0'; */
-        /**     send_to_tox(m, gmsgtmp, strlen(gmsgtmp)); */
-        /** } else { */
-        /**     if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH-1) */
-        /**     { */
-        /**         send_to_tox(m, gmsg, strlen(gmsg)); */
-        /**         gmsg[0] = '\0'; */
-        /**     } */
-        /**     strcat(gmsg, gmsgtmp); */
-        /** } */
-    }
-    //memset(msgfw, 0, sizeof(msgfw));
-    send_to_tox(m, gmsg, strlen(gmsg));
-    pclose(fd_gm);
-    gm_lock = false;
+    /* if (gm_lock == true) */
+    /* { */
+    /*     log_timestamp("gm task is busy"); */
+    /*     return; */
+    /* } else */
+    /*     gm_lock = true; */
+    /*  */
+    /* [>* fd = popen(GM_SH_PATH, "r"); <] */
+    /* fd_gm = popen("/run/user/1000/bot/gm.sh", "r"); */
+    /* if (fd_gm == NULL) */
+    /* { */
+    /*     log_timestamp("不能执行gm.sh"); */
+    /*     return; */
+    /* } */
+    /* gmsg[0] = '\0'; */
+    /* while (1) */
+    /* { */
+    /*     gmsgtmp[0] = '\0'; */
+    /*     if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL) */
+    /*     { */
+    /*         [>* log_timestamp("gm ok"); <] */
+    /*         [>* join_public_group(m); <] */
+    /*         break; */
+    /*     } */
+    /*     log_timestamp("got msg from mt: %s", gmsgtmp); */
+    /*     if (strlen(gmsgtmp) == 0) */
+    /*         continue; */
+    /*     if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH) */
+    /*     { */
+    /*         send_to_tox(m, gmsg, strlen(gmsg)); */
+    /*         gmsg[0] = '\0'; */
+    /*     } */
+    /*     strcat(gmsg, gmsgtmp); */
+    /*  */
+    /*     [>* if (strlen(gmsgtmp) >= TOX_MAX_MESSAGE_LENGTH-1) <] */
+    /*     [>* { <] */
+    /*     [>*     send_to_tox(m, gmsg, strlen(gmsg)); <] */
+    /*     [>*     gmsg[0] = '\0'; <] */
+    /*     [>*     send_to_tox(m, gmsgtmp, strlen(gmsgtmp)); <] */
+    /*     [>* } else { <] */
+    /*     [>*     if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH-1) <] */
+    /*     [>*     { <] */
+    /*     [>*         send_to_tox(m, gmsg, strlen(gmsg)); <] */
+    /*     [>*         gmsg[0] = '\0'; <] */
+    /*     [>*     } <] */
+    /*     [>*     strcat(gmsg, gmsgtmp); <] */
+    /*     [>* } <] */
+    /* } */
+    /* //memset(msgfw, 0, sizeof(msgfw)); */
+    /* send_to_tox(m, gmsg, strlen(gmsg)); */
+    /* pclose(fd_gm); */
+    /* gm_lock = false; */
 
 }
 // add by liqsliu
