@@ -281,9 +281,9 @@ static void *my_daemon(void *mv)
     while(1)
     {
         sleep(3);
-        log_timestamp("my daemon is running...")
+        log_timestamp("my daemon is running...");
     }
-    log_timestamp("线程终止")
+    log_timestamp("线程终止");
     return 0;
 }
 
