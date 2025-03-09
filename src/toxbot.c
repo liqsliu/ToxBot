@@ -519,7 +519,7 @@ static void get_msg_from_mt(Tox *m)
             {
                 PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
                 pthread_t pthreads[1];
-                rc = pthread_create(&pthreads[0], NULL, my_daemon, (void *)m);
+                int rc = pthread_create(&pthreads[0], NULL, my_daemon, (void *)m);
                 if (rc != 0)
                 {
                     log_timestamp("无法创建线程");
