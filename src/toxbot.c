@@ -308,8 +308,8 @@ static void join_public_group(Tox *m)
     sleep(1);
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
         return;
-    if (joined_group == true)
-        return;
+    /** if (joined_group == true) */
+    /**     return; */
     /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
     /** log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM); */
     log_timestamp("开始加入: %s", CHAT_ID);
