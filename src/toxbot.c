@@ -479,7 +479,7 @@ static void send_to_tox(Tox *m, char *gmsg, size_t len)
           {
            log_timestamp("failed to send msg to group: %s", gmsg);
            /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
-           PUBLIC_GROUP_NUM = UINT32_MAX
+           PUBLIC_GROUP_NUM = UINT32_MAX;
           } else {
               log_timestamp("send msg to group: %s", gmsg);
           }
