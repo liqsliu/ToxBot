@@ -303,7 +303,7 @@ bool joined_group=false;
 
 static void *my_daemon(void *mv)
 {
-    while(PUBLIC_GROUP_NUM = Tox_Bot.last_connected)
+    while(PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
     {
         sleep(1);
         log_timestamp("等待tox初始化完成");
