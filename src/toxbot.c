@@ -272,6 +272,29 @@ bool gm_lock=false;
 /** char *CHAT_ID="5CD71E298857CA3B502BE58383E3AF7122FCDE5BF46D5424192234DF83A76A66"; */
 /** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
 uint32_t PUBLIC_GROUP_NUM = 100;
+static void rejoin_public_group(Tox_Group_Number gn)
+{
+    /** if(tox_group_is_connected(m, gn, NULL) == false) */
+    {
+        if (tox_group_reconnect(m, gn, NULL) == true)
+        {
+            log_timestamp("2已加入public group，group number: %d", gn);
+            char public_key[TOX_PUBLIC_KEY_SIZE];
+            log_timestamp("%d", sizeof(public_key));
+            bool res = tox_group_self_get_public_key(m, gn, (uint8_t *)public_key, NULL);
+            log_timestamp("%d %X", sizeof(public_key), public_key);
+            for (int i=0; i<sizeof(public_key); i++)
+            {
+                printf("%hhX", public_key[i]);
+            }
+            sleep(3);
+            log_timestamp("res: %x", res);
+        } else {
+            log_timestamp("2failed，group number: %d", gn);
+        }
+    }
+}
+
 static void join_public_group(Tox *m)
 {
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
@@ -282,11 +305,12 @@ static void join_public_group(Tox *m)
     log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM);
     log_timestamp("%s", CHAT_ID);
     log_timestamp("%s", (uint8_t *)CHAT_ID);
-    log_timestamp("%s", (uint8_t *)(hex_string_to_bin(CHAT_ID)));
+    key_bin = hex_string_to_bin(CHAT_ID)
+    log_timestamp("%s", (uint8_t *)key_bin);
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)name, strlen(name), NULL, 0, NULL); */
     Tox_Err_Group_Join err;
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err); */
-    PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)(hex_string_to_bin(CHAT_ID)), (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
+    PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
     {
         /** log_timestamp("加入失败，group number: %d", PUBLIC_GROUP_NUM); */
@@ -296,26 +320,9 @@ static void join_public_group(Tox *m)
     } else
     {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == false)
-        {
-            if (tox_group_reconnect(m, PUBLIC_GROUP_NUM, NULL) == true)
-            {
-                log_timestamp("2已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-                char public_key[TOX_PUBLIC_KEY_SIZE];
-                log_timestamp("%d", sizeof(public_key));
-                bool res = tox_group_self_get_public_key(m, PUBLIC_GROUP_NUM, (uint8_t *)public_key, NULL);
-                log_timestamp("%d %X", sizeof(public_key), public_key);
-                for (int i=0; i<sizeof(public_key); i++)
-                {
-                    printf("%hhX", public_key[i]);
-                }
-                sleep(3);
-                log_timestamp("res: %x", res);
-            } else {
-                log_timestamp("2failed，group number: %d", PUBLIC_GROUP_NUM);
-            }
-        }
+        rejoin_public_group(PUBLIC_GROUP_NUM)
     }
+    free(key_bin);
 
 }
 
@@ -343,24 +350,9 @@ static void cb_group_invite2(
         log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_invite_accept_to_string(err));
     
     } else
-        log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-    if (tox_group_reconnect(m, PUBLIC_GROUP_NUM, NULL) == true)
     {
-        log_timestamp("2已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        char public_key[TOX_PUBLIC_KEY_SIZE];
-        log_timestamp("%d", sizeof(public_key));
-        /** bool res = tox_group_self_get_public_key(m, PUBLIC_GROUP_NUM, (uint8_t *)public_key, NULL); */
-        bool res = tox_group_get_chat_id(m, PUBLIC_GROUP_NUM, (uint8_t *)public_key, NULL);
-        log_timestamp("res: %x", res);
-        log_timestamp("sizeof: %d %X", sizeof(public_key), public_key);
-        for (int i=0; i<sizeof(public_key); i++)
-        {
-            printf("%hhX", public_key[i]);
-        }
-        printf("\n");
-        sleep(3);
-    } else {
-        log_timestamp("2failed，group number: %d", PUBLIC_GROUP_NUM);
+        log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
+        rejoin_public_group(PUBLIC_GROUP_NUM)
     }
 
 }
