@@ -285,7 +285,8 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
             log_timestamp("2已加入public group，group number: %d", gn);
             char public_key[TOX_PUBLIC_KEY_SIZE];
             log_timestamp("%d", sizeof(public_key));
-            bool res = tox_group_self_get_public_key(m, gn, (uint8_t *)public_key, NULL);
+            /** bool res = tox_group_self_get_public_key(m, gn, (uint8_t *)public_key, NULL); */
+            bool res = tox_group_get_chat_id(m, gn, (uint8_t *)public_key, NULL);
             log_timestamp("res: %x", res);
             log_timestamp("%d %X", sizeof(public_key), public_key);
             for (int i=0; i<sizeof(public_key); i++)
@@ -306,8 +307,8 @@ static void join_public_group(Tox *m)
     if (joined_group == true)
         return;
     /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
-    log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM);
-    log_timestamp("%s", CHAT_ID);
+    /** log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM); */
+    log_timestamp("开始加入: %s", CHAT_ID);
     log_timestamp("%s", (uint8_t *)CHAT_ID);
     uint8_t *key_bin = hex_string_to_bin(CHAT_ID);
     log_timestamp("%s", key_bin);
