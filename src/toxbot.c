@@ -540,7 +540,7 @@ static void *my_daemon(void *mv)
     char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
     while(1)
     {
-        sleep(1);
+        /* sleep(1); */
         log_timestamp("my daemon is running...");
         gmsg[0] = '\0';
         if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
