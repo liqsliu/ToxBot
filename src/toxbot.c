@@ -381,6 +381,12 @@ static void cb_group_invite2(
     /** PUBLIC_GROUP_NUM = tox_group_invite_accept(m, friend_number, invite_data, invite_data_length, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, NULL); */
     /** log_timestamp("group number: %d", PUBLIC_GROUP_NUM); */
     /** return; */
+    if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == true)
+    {
+        res = tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL);
+        log_timestamp("尝试断开: %d", res);
+        sleep(1);
+    }
     Tox_Err_Group_Invite_Accept err;
     PUBLIC_GROUP_NUM = tox_group_invite_accept(m, friend_number, invite_data, invite_data_length, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
