@@ -220,9 +220,9 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
                 rejoin_public_group(m, PUBLIC_GROUP_NUM);
             
             if (joined_group == true)
-                *outmsg = "ok";
+                outmsg = "ok";
             else
-                *outmsg = "failed";
+                outmsg = "failed";
             tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         }
         return;
