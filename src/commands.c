@@ -811,7 +811,7 @@ static int parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
 /**     } */
 /** } */
 
-static int my_parse_command parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
+static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
 {
     /** if (input[0] != '.') { */
     /**     return -1; */
