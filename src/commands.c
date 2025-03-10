@@ -939,24 +939,25 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
         return -1;
     }
 
+    int num_args = -1;
     /** if (input[0] == '.' && input[1] != '\0') { */
     if (input[0] == '.') {
         char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH];
-        int num_args = my_parse_command(&input[1], args);
+        num_args = my_parse_command(&input[1], args);
     } else if (strcmp(input, "invite") == 0) {
         /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
         /** int num_args = parse_command(input, args); */
         char ** args={
             "invite"
         };
-        int num_args=1;
+        num_args = 1;
     } else if (strcmp(input, "help") == 0) {
         /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
         /** int num_args = parse_command(input, args); */
         char ** args={
             "help"
         };
-        int num_args=1;
+        num_args = 1;
     } else {
         return -1;
     }
