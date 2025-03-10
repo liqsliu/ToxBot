@@ -17,6 +17,7 @@ if [[ "$r" -eq 143 ]]; then
   echo 'restart ...'
 elif [[ "$r" -eq 0 ]]; then
   echo 'wtf ...'
+  exit
 else
   echo 'stop ...'
   break
