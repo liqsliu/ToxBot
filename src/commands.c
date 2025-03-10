@@ -230,7 +230,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
     log_timestamp("argc: %d", argc+1);
     printf("argv:");
     int i;
-    for (i=0; i<argc; ++i) {
+    for (i=0; i<argc+1; ++i) {
         printf(" \"%s\"", argv[i]);
     }
     printf("\n");
@@ -280,7 +280,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             line[0] = '\0';
             log_timestamp("reading txt...");
             while (fgets(line, TOX_MAX_MESSAGE_LENGTH, fp)) {
-                log_timestamp("got: %s", line);
+                /** log_timestamp("got: %s", line); */
                 outmsg = line;
                 tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
                 line[0] = '\0';
