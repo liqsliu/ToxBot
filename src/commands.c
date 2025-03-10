@@ -994,7 +994,7 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
     if (input[0] == '.') {
         if (!friend_is_master(m, friendnum)) {
             authent_failed(m, friendnum);
-            log_timestamp("已忽略命令: %d %s", friendnum, message);
+            log_timestamp("已忽略命令: %d: %s", friendnum, input);
             return -2;
         }
         char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH];
