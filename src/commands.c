@@ -227,7 +227,7 @@ static void cmd_group(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
 
 static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
-    log_timestamp("argc: %d", argc);
+    log_timestamp("argc: %d", argc+1);
     printf("argv:");
     int i;
     for (i=0; i<argc; ++i) {
@@ -237,7 +237,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
 
     const char *outmsg = NULL;
 
-    if (argc == 1) {
+    if (argc == 0) {
         outmsg = "info : Print my current status and list active group chats";
         tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
@@ -259,7 +259,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
         }
         return;
     }
-    if (argc == 2) {
+    if (argc == 1) {
         if (strcmp(argv[1], "admin") == 0) {
             FILE *fp = NULL;
             char * path=strcat(SH_PATH, "commands.txt");
