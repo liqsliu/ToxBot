@@ -212,7 +212,8 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
             log_timestamp("已忽略命令: %d %s", friendnumber, message);
             return;
         }
-        if (message == ".join") {
+        /** if (message == ".join") { */
+        if (strcmp(message, ".join") == 0)
             if (PUBLIC_GROUP_NUM == UINT32_MAX)
                 join_public_group(m);
             else
