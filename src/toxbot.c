@@ -196,6 +196,29 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
     char message[TOX_MAX_MESSAGE_LENGTH];
     length = copy_tox_str(message, sizeof(message), (const char *) string, length);
     message[length] = '\0';
+    // add by liqsliu
+    if (message[0] == '.') {
+        if (!friend_is_master(m, friendnumber)) {
+            authent_failed(m, friendnumber);
+            log_timestamp("已忽略命令: %d %s", friendnumber, message);
+            return;
+        }
+        if (message == ".join") {
+            if (PUBLIC_GROUP_NUM == UINT32_MAX)
+                join_public_group(m);
+            else
+                rejoin_public_group(m, PUBLIC_GROUP_NUM);
+            
+            if (joined_group == true)
+                const char *outmsg = "ok";
+            else
+                const char *outmsg = "failed";
+            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        }
+        return;
+    }
+    }
+    // add by liqsliu
 
     if (length && execute(m, friendnumber, message, length) == -1) {
         outmsg = "Invalid command. Type help for a list of commands";
@@ -262,15 +285,11 @@ static void cb_group_titlechange(Tox *m, uint32_t groupnumber, uint32_t peernumb
 }
 
 // add by liqsliu
+#include <pthread.h>
 bool gm_lock=false;
-#define BOT_NAME "bot"
-#define GROUP_NAME "wtfipfs"
-#define CHAT_ID "5CD71E298857CA3B502BE58383E3AF7122FCDE5BF46D5424192234DF83A76A66"
-/** char *CHAT_ID="5CD71E298857CA3B502BE58383E3AF7122FCDE5BF46D5424192234DF83A76A66"; */
 /** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
 uint32_t PUBLIC_GROUP_NUM=0;
 bool joined_group=false;
-#include <pthread.h>
 /* #include <curl/curl.h> */
 /* static void *my_daemon(void *mv) */
 /* { */
@@ -300,7 +319,7 @@ bool joined_group=false;
 
 
 
-static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
+int rejoin_public_group(Tox *m, Tox_Group_Number gn)
 {
     if(tox_group_is_connected(m, gn, NULL) == true)
         log_timestamp("connected, really?");
@@ -325,12 +344,13 @@ static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
         } else {
             log_timestamp("2failed，group number: %d", gn);
             joined_group = false;
+            return -1;
         }
     }
     log_timestamp("rejoined ok");
 }
 
-static void join_public_group(Tox *m)
+int join_public_group(Tox *m)
 {
     joined_group = true;
     log_timestamp("开始加入: %s", CHAT_ID);
@@ -361,6 +381,7 @@ static void join_public_group(Tox *m)
         log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_join_to_string(err));
         /** PUBLIC_GROUP_NUM = get_time(); */
         joined_group = false;
+        return -1;
     
     } else
     {
@@ -410,7 +431,6 @@ static void cb_group_invite2(
 }
 
 
-#define SM_SH_PATH "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n"
 // # https://github.com/TokTok/c-toxcore/blob/81b1e4f6348124784088591c4fe9ab41e273031d/toxcore/tox.h#L2130
 static void cb_conference_message(
     Tox *m, Tox_Conference_Number conference_number, Tox_Conference_Peer_Number peer_number,
@@ -434,14 +454,18 @@ static void cb_conference_message(
     len = tox_conference_get_title_size(m, conference_number, NULL);
     title[len] = '\0';
 
+    if (name == BOT_NAME) {
+        log_timestamp("忽略bot自己发的消息: %s [%s]: %s", title, name, message);
+        return;
+    }
 
     if (idx == 0)
     {
         log_timestamp("群消息: %s [%s]: %s", title, name, message);
         if (strcmp(name, "bot") != 0)
         {
-            /** char smsg[2048] = SM_SH_PATH; */
-            char smsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n";
+            char smsg[2048] = SM_SH_PATH;
+            /** char smsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n"; */
             strcat(smsg, name);
             strcat(smsg, "\nEOF\n)\" \"$(cat <<EOF\n");
             strcat(smsg, (char *)message);
@@ -472,8 +496,8 @@ static void cb_group_message(
         log_timestamp("ngc群消息: %s [%s]: %s", title, name, message);
         if (strcmp(name, "bot") != 0)
         {
-            /** char smsg[2048] = SM_SH_PATH; */
-            char smsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n";
+            char smsg[2048] = SM_SH_PATH;
+            /** char smsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n"; */
             strcat(smsg, name);
             strcat(smsg, "\nEOF\n)\" \"$(cat <<EOF\n");
             strcat(smsg, (char *)message);
@@ -536,7 +560,8 @@ static void *my_daemon(void *mv)
     char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
     while(1)
     {
-        fd_gm = popen("/run/user/1000/bot/gm_stream.sh", "r");
+        /** fd_gm = popen("/run/user/1000/bot/gm_stream.sh", "r"); */
+        fd_gm = popen(GM_SH_PATH, "r");
         if (fd_gm == NULL)
         {
             log_timestamp("不能执行gm.sh");
@@ -920,7 +945,7 @@ static Tox *init_tox(void)
     size_t s_len = tox_self_get_status_message_size(m);
 
     if (s_len == 0) {
-        const char *statusmsg = "Send me the the command 'help' for more info";
+        const char *statusmsg = "Send me the the command '.help' for more info";
         tox_self_set_status_message(m, (uint8_t *) statusmsg, strlen(statusmsg), NULL);
     }
 
