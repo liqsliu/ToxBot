@@ -892,6 +892,13 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     }
 
     free(cmd);
+    j = sizeof(args)/sizeof(args[0]);
+    log_timestamp("length: %d", j);
+    printf("args: ");
+    for (i=0; i<j; ++i) {
+        printf("%s", args[i]);
+    }
+    printf("\n");
     return num_args;
 }
 
