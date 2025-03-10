@@ -227,8 +227,8 @@ static void cmd_group(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
 
 static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
-    log_timestamp("length: %d", argc);
-    printf("args:");
+    log_timestamp("argc: %d", argc);
+    printf("argv:");
     int i;
     for (i=0; i<argc; ++i) {
         printf(" \"%s\"", argv[i]);
