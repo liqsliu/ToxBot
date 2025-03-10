@@ -824,7 +824,7 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     int i = 0;    /* index of last char in an argument */
 
     /* characters wrapped in double quotes count as one arg */
-    int j cmd_l, qq_n=0;
+    int j, cmd_l, qq_n=0;
     char qq1 = '\"';
     char qq2 = '\'';
     char qq = '\\'; // 不要改动，否则下面要增加代码。
