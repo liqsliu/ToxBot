@@ -946,14 +946,14 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
     } else if (strcmp(input, "invite") == 0) {
         /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
         /** int num_args = parse_command(input, args); */
-        char args[][]={
+        char ** args={
             "invite"
         };
         int num_args=1;
     } else if (strcmp(input, "help") == 0) {
         /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
         /** int num_args = parse_command(input, args); */
-        char args[][]={
+        char ** args={
             "help"
         };
         int num_args=1;
