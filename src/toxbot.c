@@ -302,9 +302,10 @@ bool joined_group=false;
 
 static void rejoin_public_group(Tox *m, Tox_Group_Number gn)
 {
-    sleep(3);
     if(tox_group_is_connected(m, gn, NULL) == true)
         log_timestamp("connected, really?");
+        if (tox_group_disconnect(m, gn, NULL) == true)
+            log_timestamp("disconnected");
     if(true)
     {
         if (tox_group_reconnect(m, gn, NULL) == true)
@@ -333,7 +334,6 @@ static void join_public_group(Tox *m)
 {
     joined_group = true;
     log_timestamp("开始加入: %s", CHAT_ID);
-    sleep(1);
     /** if (PUBLIC_GROUP_NUM == UINT32_MAX) */
     /**     return; */
     /** if (joined_group == true) */
@@ -341,13 +341,20 @@ static void join_public_group(Tox *m)
     /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
     /** log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM); */
     log_timestamp("%s", (uint8_t *)CHAT_ID);
-    uint8_t *key_bin = hex_string_to_bin(CHAT_ID);
+    char *key_bin = hex_string_to_bin(CHAT_ID);
     log_timestamp("%s", key_bin);
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)name, strlen(name), NULL, 0, NULL); */
     Tox_Err_Group_Join err;
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err); */
     //  https://github.com/TokTok/c-toxcore/blob/81b1e4f6348124784088591c4fe9ab41e273031d/toxcore/tox.h#L3319
-    PUBLIC_GROUP_NUM = tox_group_join(m, key_bin, BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
+    if (PUBLIC_GROUP_NUM != UINT32_MAX)
+    {
+        if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == true)
+            log_timestamp("connected, really?");
+            if (tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL) == true)
+                log_timestamp("disconnected");
+    }
+    PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)key_bin, BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
     {
         /** log_timestamp("加入失败，group number: %d", PUBLIC_GROUP_NUM); */
@@ -488,38 +495,26 @@ static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
         tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
         if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK)
         {
-    //			    char mymsg[2048] = "bash /run/user/1000/sm.sh \"ERR\" \"$(cat <<EOF\n";
-            /** char mymsg[2048] = SM_SH_PATH; */
-            char mymsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n";
-            strcat(mymsg, "ERROR\nEOF\n)\" \"$(cat <<EOF\n");
-            if (err == TOX_ERR_CONFERENCE_SEND_MESSAGE_CONFERENCE_NOT_FOUND)
-                strcat(mymsg, "The conference number passed did not designate a valid conference");
-            if (err == TOX_ERR_CONFERENCE_SEND_MESSAGE_TOO_LONG)
-                strcat(mymsg, "The message is too long");
-            if (err == TOX_ERR_CONFERENCE_SEND_MESSAGE_NO_CONNECTION)
-                strcat(mymsg, "The client is not connected to the conference");
-            if (err == TOX_ERR_CONFERENCE_SEND_MESSAGE_FAIL_SEND)
-                strcat(mymsg, "The message packet failed to send");
-            strcat(mymsg, "\n--msg--\n");
-            strcat(mymsg, gmsg);
-            strcat(mymsg, "\nEOF\n)\"");
-//            system(mymsg);
-            log_timestamp(mymsg);
+           log_timestamp("failed send conference msg: %s: %s", tox_err_conference_send_message_to_string(err), gmsg);
+        } else {
+            log_timestamp("sent: %s", gmsg);
         }
 
-        /** Tox_Err_Group_Send_Message error; */
-        // https://github.com/TokTok/c-toxcore/blob/172f279dc0647a538b30e62c96bab8bb1b0c8960/toxcore/tox.h#L4403
 
-        log_timestamp("check...send msg to group: %s", gmsg);
-        if (PUBLIC_GROUP_NUM != UINT32_MAX)
+        /** log_timestamp("check...send msg to group: %s", gmsg); */
+        /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
+        if (joined_group == true)
         {
-          if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, NULL) != true)
+            Tox_Err_Group_Send_Message err2;
+            
+          if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, err2) != true)
           {
-           log_timestamp("failed to send msg to group: %s", gmsg);
+              log_timestamp("failed to send msg to group: %s: %s", tox_err_group_send_message_to_string(err2), gmsg);
            /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
-           PUBLIC_GROUP_NUM = UINT32_MAX;
+           /** PUBLIC_GROUP_NUM = UINT32_MAX; */
+           joined_group = false;
           } else {
-              log_timestamp("send msg to group: %s", gmsg);
+            log_timestamp("sent to group: %s", gmsg);
           }
 
         }
@@ -572,7 +567,7 @@ static void *my_daemon(void *mv)
 
 static void get_msg_from_mt(Tox *m)
 {
-    if (joined_group == false)
+    /** if (joined_group == false) */
     {
         if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
             return;
@@ -1054,6 +1049,10 @@ static void purge_empty_groups(Tox *m)
         if (!Tox_Bot.g_chats[i].active) {
             continue;
         }
+        // add by liqsliu
+        if (Tox_Bot.g_chats[i].groupnum == 0)
+            continue
+        // add by liqsliu
 
         TOX_ERR_CONFERENCE_PEER_QUERY err;
         uint32_t num_peers = tox_conference_peer_count(m, Tox_Bot.g_chats[i].groupnum, &err);
@@ -1156,6 +1155,9 @@ if (rc != 0)
 
     uint64_t last_friend_purge = cur_time;
     uint64_t last_group_purge = cur_time;
+// add by liqsliu
+    uint64_t last_join = cur_time;
+// add by liqsliu
 
     while (!FLAG_EXIT) {
         TOX_CONNECTION connection_status = tox_self_get_connection_status(m);
@@ -1181,18 +1183,24 @@ if (rc != 0)
         tox_iterate(m, NULL);
 
 
-// add by liqsliu
-/** get_msg_from_mt(m); */
-if (joined_group == false)
-{
-    if (PUBLIC_GROUP_NUM != Tox_Bot.last_connected)
-        join_public_group(m);
-}
-// add by liqsliu
-
         usleep(tox_iteration_interval(m) * 1000);
 
         cur_time = get_time();
+// add by liqsliu
+/** get_msg_from_mt(m); */
+    if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
+        last_join = cur_time;
+    if (joined_group == true)
+    {
+        last_join = cur_time;
+    }
+    if (cur_time - last_join > 15) {
+        /** PUBLIC_GROUP_NUM == 0; */
+        join_public_group(m);
+        last_join = cur_time
+    }
+// add by liqsliu
+
     }
 
     exit_toxbot(m);
