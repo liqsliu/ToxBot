@@ -264,7 +264,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             FILE *fp = NULL;
             char path[1024];
             strcat(path, SH_PATH);
-            strcat(path, "commands.txt");
+            strcat(path, "/commands.txt");
             if (file_exists(path) != true)
             {
                 outmsg = "not found commands.txt file";
