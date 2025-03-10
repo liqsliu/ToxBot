@@ -20,15 +20,6 @@
  *
  */
 
-// add by liqsliu
-#include <pthread.h>
-bool gm_lock=false;
-/** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
-uint32_t PUBLIC_GROUP_NUM=0;
-bool joined_group=false;
-/* #include <curl/curl.h> */
-// add by liqsliu
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -104,6 +95,15 @@ static void exit_toxbot(Tox *m)
     tox_kill(m);
     exit(EXIT_SUCCESS);
 }
+
+// add by liqsliu
+#include <pthread.h>
+bool gm_lock=false;
+/** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
+uint32_t PUBLIC_GROUP_NUM=0;
+bool joined_group=false;
+/* #include <curl/curl.h> */
+// add by liqsliu
 
 /* Returns true if friendnumber's Tox ID is in the masterkeys list. */
 bool friend_is_master(Tox *m, uint32_t friendnumber)
