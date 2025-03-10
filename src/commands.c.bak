@@ -37,9 +37,7 @@
 #define MAX_NUM_ARGS 4
 
 extern struct Tox_Bot Tox_Bot;
-
 // add by liqsliu
-#define MAX_NUM_ARGS 16 //测试结果: 重复定义会以第二次定义的为准
 extern uint32_t PUBLIC_GROUP_NUM;
 extern bool joined_group;
 // add by liqsliu
@@ -247,24 +245,6 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
         outmsg = "For a list of master commands see the commands.txt file";
         tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     }
-}
-static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
-{
-    if (!friend_is_master(m, friendnumber)) {
-        authent_failed(m, friendnumber);
-        log_timestamp("已忽略命令: %d %s", friendnumber, message);
-        return;
-    }
-    if (PUBLIC_GROUP_NUM == UINT32_MAX)
-        join_public_group(m);
-    else
-        rejoin_public_group(m, PUBLIC_GROUP_NUM);
-    
-    if (joined_group == true)
-        const char *outmsg = "ok";
-    else
-        const char *outmsg = "failed";
-    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 }
 
 static void cmd_id(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
@@ -749,9 +729,6 @@ static void cmd_title_set(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX
     log_timestamp("%s set group %d title to %s", name, groupnum, title);
 }
 
-
-
-
 /* Parses input command and puts args into arg array.
    Returns number of arguments on success, -1 on failure. */
 static int parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
@@ -796,103 +773,6 @@ static int parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     free(cmd);
     return num_args;
 }
-/** int char_find(char *cmd, int qq_n, char qq) */
-/** { */
-/**     char c = *cmd; */
-/**     if (c == '\"' || c == '\'' ) */
-/**     { */
-/**         if (c == qq) */
-/**         { */
-/**             qq_n--; */
-/**         } else { */
-/**             qq_n++; */
-/**         } */
-/**     } */
-/** } */
-
-static int my_parse_command parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
-{
-    /** if (input[0] != '.') { */
-    /**     return -1; */
-    /** } */
-    char *cmd = strdup(input);
-    if (cmd == NULL) {
-        exit(EXIT_FAILURE);
-    }
-    int num_args = 0;
-    int i = 0;    /* index of last char in an argument */
-
-    /* characters wrapped in double quotes count as one arg */
-    int j cmd_l, qq_n=0;
-    char qq1 = '\"';
-    char qq2 = '\'';
-    char qq = '\\'; // 不要改动，否则下面要增加代码。
-    char c;
-    bool need_escape=false;
-    while (num_args < MAX_NUM_ARGS) {
-        int qt_ofst = 0;    /* set to 1 to offset index for quote char at end of arg */
-
-        cmd_l = strlen(cmd);
-        for (j=0; j<cmd_l; ++j)
-        {
-            if (need_escape == true)
-            {
-                need_escape = false;
-                continue;
-            }
-            c = cmd[j];
-            if (c == '\\') {
-                need_escape = true;
-                continue;
-            }
-            if (c == qq) {
-                if (c == qq1) {
-                    qq = qq2;
-                } else if (c == qq2) {
-                    qq = qq1;
-                }
-                qq_n--;
-            } else if (c == qq1) {
-                qq = qq1;
-                qq_n++;
-            } else if (c == qq2) {
-                qq = qq2;
-                qq_n++;
-            } else if (qq_n == 0) {
-                if (c == ' ')
-                    break;
-            }
-            
-        }
-        i = j;
-
-        /** if (*cmd == '\"') { */
-        /**     qt_ofst = 1; */
-        /**     i = char_find(1, cmd, '\"'); */
-        /**  */
-        /**     if (cmd[i] == '\0') { */
-        /**         free(cmd); */
-        /**         return -1; */
-        /**     } */
-        /** } else { */
-        /**     i = char_find(0, cmd, ' '); */
-        /** } */
-
-        memcpy(args[num_args], cmd, i + qt_ofst);
-        args[num_args++][i + qt_ofst] = '\0';
-
-        if (cmd[i] == '\0') {  /* no more args */
-            break;
-        }
-
-        char tmp[MAX_COMMAND_LENGTH];
-        snprintf(tmp, sizeof(tmp), "%s", &cmd[i + 1]);
-        strcpy(cmd, tmp);    /* tmp will always fit inside cmd */
-    }
-
-    free(cmd);
-    return num_args;
-}
 
 static struct {
     const char *name;
@@ -913,7 +793,6 @@ static struct {
     { "status",           cmd_status        },
     { "statusmessage",    cmd_statusmessage },
     { "title",            cmd_title_set     },
-    { "init",            cmd_init     },
     { NULL,               NULL              },
 };
 
@@ -934,31 +813,9 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
     if (length >= MAX_COMMAND_LENGTH) {
         return -1;
     }
-    if (length < 2) {
-        return -1;
-    }
 
-    /** if (input[0] == '.' && input[1] != '\0') { */
-    if (input[0] == '.') {
-        char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH];
-        int num_args = my_parse_command(&input[1], args);
-    } else if (input == "invite") {
-        /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
-        /** int num_args = parse_command(input, args); */
-        char args[][]={
-            "invite"
-        };
-        int num_args=1;
-    } else if (input == "help") {
-        /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
-        /** int num_args = parse_command(input, args); */
-        char args[][]={
-            "help"
-        };
-        int num_args=1;
-    } else {
-        return -1;
-    }
+    char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH];
+    int num_args = parse_command(input, args);
 
     if (num_args == -1) {
         return -1;

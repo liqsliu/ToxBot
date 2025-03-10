@@ -25,3 +25,11 @@ ToxBot will automatically accept groupchat invites from a master.
 `make && make install`
 
 Note: If you get an error that says `cannot open shared object file: No such file or directory`, try running `sudo ldconfig`.
+
+---
+changed by liqsliu:
+src/toxbot.h
+src/toxbot.c
+src/commands.c
+Makefile
+
