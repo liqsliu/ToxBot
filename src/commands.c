@@ -262,8 +262,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
     if (argc == 1) {
         if (strcmp(argv[1], "admin") == 0) {
             FILE *fp = NULL;
-            char path[1024];
-            strcat(path, SH_PATH);
+            char path[1024]=SH_PATH;
             strcat(path, "/commands.txt");
             if (file_exists(path) != true)
             {
