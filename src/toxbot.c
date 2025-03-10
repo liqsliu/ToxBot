@@ -208,7 +208,7 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
     // add by liqsliu
     if (message[0] == '.') {
         if (!friend_is_master(m, friendnumber)) {
-            authent_failed(m, friendnumber);
+            /* authent_failed(m, friendnumber); */
             log_timestamp("已忽略命令: %d %s", friendnumber, message);
             return;
         }
