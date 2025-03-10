@@ -205,7 +205,12 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
     char message[TOX_MAX_MESSAGE_LENGTH];
     length = copy_tox_str(message, sizeof(message), (const char *) string, length);
     message[length] = '\0';
+
     // add by liqsliu
+    if (strcmp(message, "ping") == 0) {
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "pong", strlen(outmsg), NULL);
+        return;
+    }
     if (message[0] == '.') {
         if (!friend_is_master(m, friendnumber)) {
             /* authent_failed(m, friendnumber); */
