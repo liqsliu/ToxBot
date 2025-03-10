@@ -506,13 +506,14 @@ static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
         if (joined_group == true)
         {
           Tox_Err_Group_Send_Message err2;
-            
-          if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2) != true)
+          /** if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2) != true) */
+          tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2)
+          if (err2 != TOX_ERR_GROUP_SEND_MESSAGE_OK)
           {
-              log_timestamp("failed to send msg to group: %s: %s", tox_err_group_send_message_to_string(err2), gmsg);
+            log_timestamp("failed to send msg to group: %s: %s", tox_err_group_send_message_to_string(err2), gmsg);
            /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
            /** PUBLIC_GROUP_NUM = UINT32_MAX; */
-           joined_group = false;
+            joined_group = false;
           } else {
             log_timestamp("sent to group: %s", gmsg);
           }
