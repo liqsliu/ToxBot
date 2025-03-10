@@ -224,13 +224,16 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
             else
                 outmsg = "failed";
             tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        } else if (length && execute(m, friendnumber, message, length) == -1) {
+            outmsg = "？";
+            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         }
         return;
     }
     // add by liqsliu
 
     if (length && execute(m, friendnumber, message, length) == -1) {
-        outmsg = "Invalid command. Type help for a list of commands";
+        outmsg = "？";
         tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     }
 }
