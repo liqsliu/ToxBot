@@ -1051,7 +1051,7 @@ static void purge_empty_groups(Tox *m)
         }
         // add by liqsliu
         if (Tox_Bot.g_chats[i].groupnum == 0)
-            continue
+            continue;
         // add by liqsliu
 
         TOX_ERR_CONFERENCE_PEER_QUERY err;
@@ -1197,7 +1197,7 @@ if (rc != 0)
     if (cur_time - last_join > 15) {
         /** PUBLIC_GROUP_NUM == 0; */
         join_public_group(m);
-        last_join = cur_time
+        last_join = cur_time;
     }
 // add by liqsliu
 
