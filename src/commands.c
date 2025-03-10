@@ -988,6 +988,9 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
     if (input[0] == '.') {
         char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH];
         int num_args = my_parse_command(&input[1], args);
+        if (num_args == -1) {
+            return -1;
+        }
         return do_command(m, friendnum, num_args, args);
     } else if (strcmp(input, "invite") == 0) {
         /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
@@ -1009,9 +1012,6 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
         return -1;
     }
 
-    if (num_args == -1) {
-        return -1;
-    }
     return -1;
 
 }
