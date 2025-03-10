@@ -249,31 +249,33 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             outmsg = "For a list of master commands see the commands.txt file";
             tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         }
-    } else if (strcmp(argv[1], "admin") == 0) {
-        FILE *fp = NULL;
-        char * path=strcat(SH_PATH, "commands.txt");
-        if (file_exists(path) != true)
-        {
-            outmsg = "not found commands.txt file";
-            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    }
+    if (argc == 2) {
+        if (strcmp(argv[1], "admin") == 0) {
+            FILE *fp = NULL;
+            char * path=strcat(SH_PATH, "commands.txt");
+            if (file_exists(path) != true)
+            {
+                outmsg = "not found commands.txt file";
+                tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+                return;
+            }
+            fp = fopen(path, "r");
+            if (fp == NULL) {
+                fprintf(stderr, "Warning: failed to read '%s' file\n", path);
+                return -1;
+            }
+            char line[TOX_MAX_MESSAGE_LENGTH];
+            while (fgets(line, sizeof(line), fp)) {
+                tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) line, strlen(outmsg), NULL);
+            }
+            fclose(fp);
             return;
         }
-        fp = fopen(path, "r");
-        if (fp == NULL) {
-            fprintf(stderr, "Warning: failed to read '%s' file\n", path);
-            return -1;
-        }
-        char line[TOX_MAX_MESSAGE_LENGTH];
-        while (fgets(line, sizeof(line), fp)) {
-            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) line, strlen(outmsg), NULL);
-        }
-        fclose(fp);
-        return;
-    } else {
-        outmsg = "send: .help";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
-        return;
     }
+    outmsg = "send: .help";
+    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    return;
 }
 static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
