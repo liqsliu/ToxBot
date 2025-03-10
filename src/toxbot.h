@@ -53,6 +53,8 @@ bool friend_is_master(Tox *m, uint32_t friendnumber);
 #define BOT_NAME "bot"
 #define GROUP_NAME "wtfipfs"
 #define CHAT_ID "5CD71E298857CA3B502BE58383E3AF7122FCDE5BF46D5424192234DF83A76A66"
+
+#define SH_PATH "/run/user/1000/bot"
 #define SM_SH_PATH "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n"
 #define GM_SH_PATH "bash /run/user/1000/bot/gm_stream.sh"
 

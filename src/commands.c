@@ -42,6 +42,7 @@ extern struct Tox_Bot Tox_Bot;
 #define MAX_NUM_ARGS 16 //测试结果: 重复定义会以第二次定义的为准
 extern uint32_t PUBLIC_GROUP_NUM;
 extern bool joined_group;
+
 // add by liqsliu
 
 static void authent_failed(Tox *m, uint32_t friendnum)
@@ -228,24 +229,50 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
 {
     const char *outmsg = NULL;
 
-    outmsg = "info : Print my current status and list active group chats";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
-
-    outmsg = "id : Print my Tox ID";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
-
-    outmsg = "invite : Request invite to default group chat";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
-
-    outmsg = "invite <n> <p> : Request invite to group chat n (with password p if protected)";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
-
-    outmsg = "group <type> <pass> : Creates a new groupchat with type: text | audio (optional password)";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
-
-    if (friend_is_master(m, friendnum)) {
-        outmsg = "For a list of master commands see the commands.txt file";
+    if (argc == 1) {
+        outmsg = "info : Print my current status and list active group chats";
         tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+
+        outmsg = "id : Print my Tox ID";
+        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+
+        outmsg = "invite : Request invite to default group chat";
+        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+
+        outmsg = "invite <n> <p> : Request invite to group chat n (with password p if protected)";
+        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+
+        outmsg = "group <type> <pass> : Creates a new groupchat with type: text | audio (optional password)";
+        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+
+        if (friend_is_master(m, friendnum)) {
+            outmsg = "For a list of master commands see the commands.txt file";
+            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        }
+    } else if (strcmp(argv[1], "admin") == 0) {
+        FILE *fp = NULL;
+        char * path=strcat(SH_PATH, "commands.txt");
+        if (file_exists(path) != true)
+        {
+            outmsg = "not found commands.txt file";
+            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+            return;
+        }
+        fp = fopen(path, "r");
+        if (fp == NULL) {
+            fprintf(stderr, "Warning: failed to read '%s' file\n", path);
+            return -1;
+        }
+        char line[TOX_MAX_MESSAGE_LENGTH];
+        while (fgets(line, sizeof(line), fp)) {
+            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) line, strlen(outmsg), NULL);
+        }
+        fclose(fp);
+        return;
+    } else {
+        outmsg = "send: .help";
+        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        return;
     }
 }
 static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
@@ -893,7 +920,7 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
 
     free(cmd);
     /** j = sizeof(args)/sizeof(args[0]); */
-    log_timestamp("length: %d", j);
+    log_timestamp("length: %d", num_args);
     printf("args:");
     for (i=0; i<num_args; ++i) {
         printf(" \"%s\"", args[i]);
