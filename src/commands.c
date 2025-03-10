@@ -249,6 +249,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             outmsg = "For a list of master commands see the commands.txt file";
             tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         }
+        return;
     }
     if (argc == 2) {
         if (strcmp(argv[1], "admin") == 0) {
@@ -263,7 +264,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             fp = fopen(path, "r");
             if (fp == NULL) {
                 fprintf(stderr, "Warning: failed to read '%s' file\n", path);
-                return -1;
+                return;
             }
             char line[TOX_MAX_MESSAGE_LENGTH];
             while (fgets(line, sizeof(line), fp)) {
