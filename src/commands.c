@@ -967,6 +967,7 @@ static struct {
     { "statusmessage",    cmd_statusmessage },
     { "title",            cmd_title_set     },
     { "init",            cmd_init     },
+    { "join",            cmd_init     },
     { NULL,               NULL              },
 };
 
