@@ -261,7 +261,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
     }
     if (argc == 1) {
         if (strcmp(argv[1], "admin") == 0) {
-            log_timestamp("opening txt...")
+            log_timestamp("opening txt...");
             FILE *fp = NULL;
             char path[1024]=SH_PATH;
             strcat(path, "/commands.txt");
@@ -278,7 +278,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             }
             char line[TOX_MAX_MESSAGE_LENGTH];
             line[0] = '\0';
-            log_timestamp("reading txt...")
+            log_timestamp("reading txt...");
             while (fgets(line, TOX_MAX_MESSAGE_LENGTH, fp)) {
                 tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) line, strlen(outmsg), NULL);
                 line[0] = '\0';
