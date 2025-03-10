@@ -276,8 +276,10 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
                 return;
             }
             char line[TOX_MAX_MESSAGE_LENGTH];
-            while (fgets(line, sizeof(line), fp)) {
+            line[0] = '\0';
+            while (fgets(line, TOX_MAX_MESSAGE_LENGTH, fp)) {
                 tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) line, strlen(outmsg), NULL);
+                line[0] = '\0';
             }
             fclose(fp);
             return;
