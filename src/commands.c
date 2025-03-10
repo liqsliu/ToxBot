@@ -280,6 +280,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             line[0] = '\0';
             log_timestamp("reading txt...");
             while (fgets(line, TOX_MAX_MESSAGE_LENGTH, fp)) {
+                log_timestamp("got: %s", line);
                 tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) line, strlen(outmsg), NULL);
                 line[0] = '\0';
             }
