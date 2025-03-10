@@ -20,6 +20,15 @@
  *
  */
 
+// add by liqsliu
+#include <pthread.h>
+bool gm_lock=false;
+/** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
+uint32_t PUBLIC_GROUP_NUM=0;
+bool joined_group=false;
+/* #include <curl/curl.h> */
+// add by liqsliu
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -283,14 +292,7 @@ static void cb_group_titlechange(Tox *m, uint32_t groupnumber, uint32_t peernumb
     memcpy(Tox_Bot.g_chats[idx].title, message, length + 1);
     Tox_Bot.g_chats[idx].title_len = length;
 }
-
 // add by liqsliu
-#include <pthread.h>
-bool gm_lock=false;
-/** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
-uint32_t PUBLIC_GROUP_NUM=0;
-bool joined_group=false;
-/* #include <curl/curl.h> */
 /* static void *my_daemon(void *mv) */
 /* { */
 /*     Tox *m = (Tox *)mv; */
