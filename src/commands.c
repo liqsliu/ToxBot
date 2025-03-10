@@ -229,6 +229,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
 {
     log_timestamp("length: %d", argc);
     printf("args:");
+    int i;
     for (i=0; i<argc; ++i) {
         printf(" \"%s\"", argv[i]);
     }
