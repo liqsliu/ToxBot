@@ -227,7 +227,6 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
         }
         return;
     }
-    }
     // add by liqsliu
 
     if (length && execute(m, friendnumber, message, length) == -1) {
