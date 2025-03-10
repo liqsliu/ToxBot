@@ -238,19 +238,19 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
     const char *outmsg = NULL;
 
     if (argc == 0) {
-        outmsg = "info : Print my current status and list active group chats";
+        outmsg = ".info : Print my current status and list active group chats";
         tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
-        outmsg = "id : Print my Tox ID";
+        outmsg = ".id : Print my Tox ID";
         tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
-        outmsg = "invite : Request invite to default group chat";
+        outmsg = ".invite : Request invite to default group chat";
         tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
-        outmsg = "invite <n> <p> : Request invite to group chat n (with password p if protected)";
+        outmsg = ".invite <n> <p> : Request invite to group chat n (with password p if protected)";
         tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
-        outmsg = "group <type> <pass> : Creates a new groupchat with type: text | audio (optional password)";
+        outmsg = ".group <type> <pass> : Creates a new groupchat with type: text | audio (optional password)";
         tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
         if (friend_is_master(m, friendnum)) {
@@ -990,9 +990,13 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
     if (length < 2) {
         return -1;
     }
-
     /** if (input[0] == '.' && input[1] != '\0') { */
     if (input[0] == '.') {
+        if (!friend_is_master(m, friendnum)) {
+            authent_failed(m, friendnum);
+            log_timestamp("已忽略命令: %d %s", friendnum, message);
+            return -2;
+        }
         char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH];
         int num_args = my_parse_command(&input[1], args);
         if (num_args == -1) {
@@ -1009,8 +1013,6 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
         int num_args = 1;
         return do_command(m, friendnum, num_args, args);
     } else if (strcmp(input, "help") == 0) {
-        /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
-        /** int num_args = parse_command(input, args); */
         char ** args={
             "help"
         };
@@ -1021,6 +1023,5 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
     }
 
     return -1;
-
 }
 

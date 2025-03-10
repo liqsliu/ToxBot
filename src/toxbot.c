@@ -211,33 +211,32 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
         tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "pong", strlen(outmsg), NULL);
         return;
     }
-    if (message[0] == '.') {
-        if (!friend_is_master(m, friendnumber)) {
-            /* authent_failed(m, friendnumber); */
-            log_timestamp("已忽略命令: %d %s", friendnumber, message);
-            return;
-        }
-        /** if (message == ".join") { */
-        if (strcmp(message, ".join") == 0) {
-            if (PUBLIC_GROUP_NUM == UINT32_MAX)
-                join_public_group(m);
-            else
-                rejoin_public_group(m, PUBLIC_GROUP_NUM);
-            
-            if (joined_group == true)
-                outmsg = "ok";
-            else
-                outmsg = "failed";
-            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
-        } else if (length && execute(m, friendnumber, message, length) == -1) {
-            outmsg = "？";
-            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
-        }
-        return;
-    }
+    /** if (length > 1) { */
+    /**     if (message[0] == '.') { */
+    /**         [> if (strcmp(message, ".join") == 0) { <] */
+    /**         [>     if (PUBLIC_GROUP_NUM == UINT32_MAX) <] */
+    /**         [>         join_public_group(m); <] */
+    /**         [>     else <] */
+    /**         [>         rejoin_public_group(m, PUBLIC_GROUP_NUM); <] */
+    /**         [>      <] */
+    /**         [>     if (joined_group == true) <] */
+    /**         [>         outmsg = "ok"; <] */
+    /**         [>     else <] */
+    /**         [>         outmsg = "failed"; <] */
+    /**         [>     tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL); <] */
+    /**         [>     return; <] */
+    /**         [> } <] */
+    /**         if (length && execute(m, friendnumber, message, length) == -1) { */
+    /**             outmsg = "？"; */
+    /**             tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL); */
+    /**         } */
+    /**         return; */
+    /**     } */
+    /** } */
     // add by liqsliu
 
-    if (length && execute(m, friendnumber, message, length) == -1) {
+    /** if (length && execute(m, friendnumber, message, length) == -1) { */
+    if (execute(m, friendnumber, message, length) == -1) {
         outmsg = "？";
         tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     }
