@@ -252,7 +252,7 @@ static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
 {
     if (!friend_is_master(m, friendnumber)) {
         authent_failed(m, friendnumber);
-        log_timestamp("已忽略命令: %d %s", friendnumber, message);
+        log_timestamp("已忽略命令: %d %s", friendnumber, argv[0]);
         return;
     }
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
@@ -260,10 +260,11 @@ static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     else
         rejoin_public_group(m, PUBLIC_GROUP_NUM);
     
+    const char *outmsg =NULL;
     if (joined_group == true)
-        const char *outmsg = "ok";
+        outmsg = "ok";
     else
-        const char *outmsg = "failed";
+        outmsg = "failed";
     tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 }
 
