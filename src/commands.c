@@ -991,7 +991,7 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
         if (num_args == -1) {
             return -1;
         }
-        log_timestamp("run cmd: %s", input)
+        log_timestamp("run cmd: %s", input);
         return do_command(m, friendnum, num_args, args);
     } else if (strcmp(input, "invite") == 0) {
         /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
