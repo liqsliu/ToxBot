@@ -494,7 +494,7 @@ static void cb_conference_message(
             strcat(smsg, name);
             strcat(smsg, ":** ");
             strcat(smsg, (char *)text);
-            sendg(m, smsg, strlen(smsg))
+            sendg(m, smsg, strlen(smsg));
         }
     } else {
         log_timestamp("忽略来自其他群的消息: %d %s [%s]: %s", idx, title, name, text);
@@ -535,7 +535,7 @@ static void cb_group_message(
             strcat(smsg, name);
             strcat(smsg, ":** ");
             strcat(smsg, (char *)text);
-            sendgp(m, smsg, strlen(smsg))
+            sendgp(m, smsg, strlen(smsg));
         }
     } else {
         log_timestamp("忽略来自其他ngc群的消息: %d %s [%s]: %s", group_number, title, name, text);
