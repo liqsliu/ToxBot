@@ -342,14 +342,16 @@ static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
     {
         sendg(m, gmsg, len);
         sendgp(m, gmsg, len);
+    } else {
+        log_timestamp("ignore empty msg: %s", gmsg)
     }
 }
 
-void print_chat_id(Tox *m, uint32_t gn)
+static void print_chat_id(Tox *m, uint32_t gn)
 {
     /** char public_key[TOX_PUBLIC_KEY_SIZE]; */
     char public_key[TOX_GROUP_CHAT_ID_SIZE];
-    log_timestamp("size of key: %d", sizeof(public_key));
+    /** log_timestamp("size of key: %d", sizeof(public_key)); */
     /** bool res = tox_group_self_get_public_key(m, gn, (uint8_t *)public_key, NULL); */
     bool res = tox_group_get_chat_id(m, gn, (uint8_t *)public_key, NULL);
     log_timestamp("get chat_id res: %x", res);
