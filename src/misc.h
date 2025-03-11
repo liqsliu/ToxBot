@@ -43,6 +43,7 @@ time_t get_time(void);
 
 /* converts hexidecimal string to binary */
 char *hex_string_to_bin(const char *hex_string);
+size_t hex_string_to_bin2(const char *hex_string, char *val);
 
 /* returns file size or 0 on error */
 off_t file_size(const char *path);
