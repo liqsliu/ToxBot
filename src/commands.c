@@ -1055,7 +1055,7 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
         log_timestamp("check i: %d %s", i, commands[i].name);
         r = strcmp(args[0], commands[i].name);
         if (r == 0) {
-            log_timestamp("run cmd: %d %s", i, commands[i].name);
+            log_timestamp("cmd: %d %s", i, commands[i].name);
             (commands[i].func)(m, friendnum, num_args - 1, args);
             return 0;
         }
@@ -1067,7 +1067,7 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
             right = i-1;
         }
     }
-
+    log_timestamp("not found: %s, %d %d", args[0], left, right);
     /** for (size_t i = 0; commands[i].name; ++i) { */
     /**     if (strcmp(args[0], commands[i].name) == 0) { */
     /**         (commands[i].func)(m, friendnum, num_args - 1, args); */
