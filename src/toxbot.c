@@ -343,7 +343,7 @@ static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
         sendg(m, gmsg, len);
         sendgp(m, gmsg, len);
     } else {
-        log_timestamp("ignore empty msg: %s", gmsg)
+        log_timestamp("ignore empty msg: %s", gmsg);
     }
 }
 
