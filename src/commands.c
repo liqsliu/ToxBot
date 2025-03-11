@@ -401,6 +401,7 @@ static void cmd_rejoin(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX
         return;
     }
     int gn = String2Int(argv[1]);
+    log_timestamp("group number: %d", gn);
     if(tox_group_is_connected(m, gn, NULL) == true)
     {
         log_timestamp("connected, really?");
@@ -408,12 +409,12 @@ static void cmd_rejoin(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX
     }
     else
         sendme(m, "not connected");
-    if (tox_group_disconnect(m, gn, NULL) == true)
-    {
-        sendme(m, "disconnected");
-    }
-    else
-        sendme(m, "disconnected failed");
+    /* if (tox_group_disconnect(m, gn, NULL) == true) */
+    /* { */
+    /*     sendme(m, "disconnected"); */
+    /* } */
+    /* else */
+    /*     sendme(m, "disconnected failed"); */
     /* sleep(1); */
     Tox_Err_Group_Reconnect  err;
     bool res = tox_group_reconnect(m, gn, &err);
