@@ -489,7 +489,7 @@ static void cb_conference_message(
             strcat(smsg, (char *)text);
             strcat(smsg, "\nEOF\n)\"");
             system(smsg);
-            smgs[0] = '\0';
+            smsg[0] = '\0';
             strcat(smsg, "**T ");
             strcat(smsg, name);
             strcat(smsg, ":** ");
@@ -530,7 +530,7 @@ static void cb_group_message(
             strcat(smsg, (char *)text);
             strcat(smsg, "\nEOF\n)\"");
             system(smsg);
-            smgs[0] = '\0';
+            smsg[0] = '\0';
             strcat(smsg, "**T ");
             strcat(smsg, name);
             strcat(smsg, ":** ");
