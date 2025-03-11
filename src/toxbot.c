@@ -433,7 +433,7 @@ int join_public_group(Tox *m)
     {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
         /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
-        print_chat_id(m, PUBLIC_GROUP_NUM);
+        /** print_chat_id(m, PUBLIC_GROUP_NUM); */
     }
 
 
@@ -451,8 +451,8 @@ int join_public_group(Tox *m)
         return -1;
     } else {
         log_timestamp("已加入public group，group number: %d", res);
-        print_chat_id(m, res);
-        log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
+        /** print_chat_id(m, res); */
+        /** log_timestamp("现在群数量: %d", tox_group_get_number_groups(m)); */
     }
     return 0;
 }
