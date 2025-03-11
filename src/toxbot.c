@@ -302,6 +302,48 @@ static void cb_group_titlechange(Tox *m, uint32_t groupnumber, uint32_t peernumb
 /*     log_timestamp("线程终止"); */
 /*     return 0; */
 /* } */
+void sendg(Tox *m, char *gmsg, size_t len)
+{
+    /** log_timestamp("check...send msg to group: %s", gmsg); */
+    /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
+    if (joined_group == true)
+    {
+      Tox_Err_Group_Send_Message err2;
+      /** if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2) != true) */
+      tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2);
+      if (err2 != TOX_ERR_GROUP_SEND_MESSAGE_OK)
+      {
+        log_timestamp("failed to send msg to group: %s: %s", tox_err_group_send_message_to_string(err2), gmsg);
+       /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
+       /** PUBLIC_GROUP_NUM = UINT32_MAX; */
+        joined_group = false;
+      } else {
+        log_timestamp("sent to group: %s", gmsg);
+      }
+
+    }
+}
+void sendgp(Tox *m, char *gmsg, size_t len)
+{
+    log_timestamp("send msg to tox: %s", gmsg);
+    TOX_ERR_CONFERENCE_SEND_MESSAGE err;
+    //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
+    tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
+    if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK)
+    {
+       log_timestamp("failed send conference msg: %s: %s", tox_err_conference_send_message_to_string(err), gmsg);
+    } else {
+        log_timestamp("sent: %s", gmsg);
+    }
+}
+static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
+{
+    if (len >= 1)
+    {
+        sendg(m, gmsg, len);
+        sendgp(m, gmsg, len);
+    }
+}
 
 
 int rejoin_public_group(Tox *m, Tox_Group_Number gn)
@@ -542,48 +584,6 @@ static void cb_group_message(
     }
 }
 
-static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
-{
-    if (len >= 1)
-    {
-        sendg(m, gmsg, len);
-        sendgp(m, gmsg, len);
-    }
-}
-void sendg(Tox *m, char *gmsg, size_t len)
-{
-    /** log_timestamp("check...send msg to group: %s", gmsg); */
-    /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
-    if (joined_group == true)
-    {
-      Tox_Err_Group_Send_Message err2;
-      /** if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2) != true) */
-      tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2);
-      if (err2 != TOX_ERR_GROUP_SEND_MESSAGE_OK)
-      {
-        log_timestamp("failed to send msg to group: %s: %s", tox_err_group_send_message_to_string(err2), gmsg);
-       /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
-       /** PUBLIC_GROUP_NUM = UINT32_MAX; */
-        joined_group = false;
-      } else {
-        log_timestamp("sent to group: %s", gmsg);
-      }
-
-    }
-}
-void sendgp(Tox *m, char *gmsg, size_t len)
-{
-    log_timestamp("send msg to tox: %s", gmsg);
-    TOX_ERR_CONFERENCE_SEND_MESSAGE err;
-    //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
-    tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
-    if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK)
-    {
-       log_timestamp("failed send conference msg: %s: %s", tox_err_conference_send_message_to_string(err), gmsg);
-    } else {
-        log_timestamp("sent: %s", gmsg);
-    }
-}
 
 static void *my_daemon(void *mv)
 {
