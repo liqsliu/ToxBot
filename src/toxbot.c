@@ -406,11 +406,11 @@ static void join_public_group_by_chat_id(Tox *m, char *chat_id)
     /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
     /** log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM); */
     /** log_timestamp("%s", (uint8_t *)CHAT_ID); */
-    char *key_bin = hex_string_to_bin(chat_id);
+    /* char *key_bin = hex_string_to_bin(chat_id); */
     /** char key_bin[TOX_GROUP_CHAT_ID_SIZE*2+1]; */
-    /** char key_bin[65]; */
-    /** hex_string_to_bin2(CHAT_ID, key_bin); */
-    log_timestamp("%s", key_bin);
+    char key_bin[65];
+    hex_string_to_bin2(CHAT_ID, key_bin);
+    /* log_timestamp("%s", key_bin); */
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)name, strlen(name), NULL, 0, NULL); */
     Tox_Err_Group_Join err;
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err); */
@@ -442,7 +442,7 @@ static void join_public_group_by_chat_id(Tox *m, char *chat_id)
         /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
         print_chat_id(m, PUBLIC_GROUP_NUM);
     }
-    free(key_bin);
+    /* free(key_bin); */
 }
 
 int join_public_group(Tox *m)
