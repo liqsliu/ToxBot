@@ -1047,6 +1047,7 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
         log_timestamp("check i: %d %s", i, commands[i].name);
         r = strcmp(args[0], commands[i].name);
         if (r == 0) {
+            log_timestamp("run cmd: %d %s", i, commands[i].name);
             (commands[i].func)(m, friendnum, num_args - 1, args);
             return 0;
         }
