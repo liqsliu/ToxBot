@@ -440,8 +440,9 @@ int join_public_group(Tox *m)
     log_timestamp("开始加入: %s", CHAT_ID2);
     log_timestamp("%s", (uint8_t *)CHAT_ID2);
     /** key_bin = hex_string_to_bin(CHAT_ID2); */
-    hex_string_to_bin2(CHAT_ID2, key_bin);
-    int res = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
+    char key_bin2[TOX_GROUP_CHAT_ID_SIZE];
+    hex_string_to_bin2(CHAT_ID2, key_bin2);
+    int res = tox_group_join(m, (uint8_t *)key_bin2, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
     /** free(key_bin); */
     if (res == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK)
     {
