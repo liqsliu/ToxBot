@@ -345,7 +345,7 @@ static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
     }
 }
 
-print_chat_id(m, gn)
+print_chat_id(Tox *m, uint32_t gn)
 {
     /** char public_key[TOX_PUBLIC_KEY_SIZE]; */
     char public_key[TOX_GROUP_CHAT_ID_SIZE];
