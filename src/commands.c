@@ -1152,9 +1152,7 @@ void quick_sort_recursive( struct CF *start, struct CF *end) {
     struct CF *left = start, *right = end - 1;
     while (left < right) {
         /** if (*right >= *end) */
-        /** if (*right >= *end) */
         if (strcmp((*right).name, (*end).name) >= 0)
-
             --right;
         /** else if (*left < *end) */
         else if (strcmp((*left).name, (*end).name) < 0)
@@ -1206,14 +1204,11 @@ struct CF commands[] = {
     /** { NULL,               NULL              }, */
 };
 
-const int commands_len = sizeof(commands)/sizeof(commands[0]);
-
-bool commands_sorted = false;
-
 static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX_COMMAND_LENGTH])
 {
-    /* int len = commands_len; */
     static int i; // static 可以做到保存上次查找到的位置，下次查找直接从该位置检查。如果命令相同，可以节省查找时间
+    static bool commands_sorted = false;
+    static const int commands_len = sizeof(commands)/sizeof(commands[0]);
     if (commands_sorted == false)
     {
         log_timestamp("开始排序");
