@@ -101,6 +101,7 @@ static void exit_toxbot(Tox *m)
 bool gm_lock=false;
 /** uint32_t PUBLIC_GROUP_NUM = UINT32_MAX; */
 uint32_t PUBLIC_GROUP_NUM=0;
+uint32_t MY_NUM=UINT32_MAX;
 bool joined_group=false;
 /* #include <curl/curl.h> */
 // add by liqsliu

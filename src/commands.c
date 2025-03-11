@@ -38,9 +38,18 @@
 
 extern struct Tox_Bot Tox_Bot;
 
+/** static struct { */
+/**     const char *name; */
+/**     void (*func)(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH]); */
+/** } commands[] = { */
+static struct CF {
+    const char *name;
+    void (*func)(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH]);
+};
 // add by liqsliu
 /* #define MAX_NUM_ARGS 16 //测试结果: 重复定义会以第二次定义的为准 */
 extern uint32_t PUBLIC_GROUP_NUM;
+extern uint32_t MY_NUM;
 extern bool joined_group;
 
 // add by liqsliu
@@ -225,6 +234,16 @@ static void cmd_group(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
     tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), NULL);
 }
 
+
+static void sendme(Tox *m, const char *outmsg)
+{
+    if (MY_NUM != UINT32_MAX) {
+        tox_friend_send_message(m, MY_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    } else {
+        log_timestamp("MY_NUM is not set");
+    }
+}
+
 static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     log_timestamp("argc: %d", argc+1);
@@ -293,13 +312,137 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
     tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     return;
 }
-static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+int String2Int(char *str)//字符串转数字
 {
-    if (!friend_is_master(m, friendnumber)) {
-        authent_failed(m, friendnumber);
-        log_timestamp("已忽略命令: %d %s", friendnumber, argv[0]);
+    char flag = '+';//指示结果是否带符号
+    long res = 0;
+    if(*str=='-')//字符串带负号
+    {
+        ++str;//指向下一个字符
+        flag = '-';//将标志设为负号
+    }
+    sscanf(str, "%ld", &res);
+    if(flag == '-')
+    {
+        res = -res;
+    }
+    return (int)res;
+}
+static void cmd_exit(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+{
+    if (argc == 0) {
+        sendme(m, ".exit number");
         return;
     }
+    int gn = String2Int(argv[1]);
+    if(tox_group_is_connected(m, gn, NULL) == true)
+    {
+        log_timestamp("connected, really?");
+        sendme(m, "connected?");
+    }
+    else
+        sendme(m, "not connect");
+    if (tox_group_disconnect(m, gn, NULL) == true)
+    {
+        log_timestamp("disconnected");
+        sendme(m, "ok");
+    }
+    else
+        sendme(m, "failed");
+}
+static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+{
+    int n = tox_group_get_number_groups(m);
+    log_timestamp("现在群数量: %d", n);
+    if (n == 0)
+        sendme(m, "no connected group");
+    else
+    {
+        char outmsg[TOX_MAX_MESSAGE_LENGTH]="found: ";
+        sprintf(outmsg+strlen(outmsg), "%d", n);
+        sendme(m, outmsg);
+        outmsg[0] = '\0';
+
+        char title[TOX_MAX_NAME_LENGTH];
+        int len;
+        for (int i=0; i<n; ++i)
+        {
+            sprintf(outmsg+strlen(outmsg), "%d", i);
+
+            tox_group_get_name(m, i, (uint8_t *) title, NULL);
+            len = tox_group_get_name_size(m, i, NULL);
+            title[len] = '\0';
+            sprintf(outmsg+strlen(outmsg), " %s ", title);
+
+            char public_key[TOX_PUBLIC_KEY_SIZE];
+            bool res = tox_group_get_chat_id(m, i, (uint8_t *)public_key, NULL);
+            if (res != true) {
+                sprintf(outmsg+strlen(outmsg), "无法获取chat_id: %d", i);
+                sendme(m, outmsg);
+                outmsg[0] = '\0';
+                break;
+            }
+            for (int i=0; i<sizeof(public_key); i++)
+            {
+                /* printf("%hhX", public_key[i]); */
+                sprintf(outmsg+strlen(outmsg), "%hhX", public_key[i]);
+            }
+            sendme(m, outmsg);
+            outmsg[0] = '\0';
+        }
+    }
+}
+static void cmd_join(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+{
+    char * chat_id;
+    if (argc == 0) {
+        chat_id = CHAT_ID;
+    } else {
+        chat_id = argv[1];
+    }
+    log_timestamp("开始加入: %s", chat_id);
+    log_timestamp("%s", (uint8_t *)chat_id);
+    char *key_bin = hex_string_to_bin(chat_id);
+    log_timestamp("%s", key_bin);
+    Tox_Err_Group_Join err;
+    /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err); */
+    //  https://github.com/TokTok/c-toxcore/blob/81b1e4f6348124784088591c4fe9ab41e273031d/toxcore/tox.h#L3319
+    /* if (PUBLIC_GROUP_NUM != UINT32_MAX) */
+    /* { */
+    /*     if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == true) */
+    /*         log_timestamp("connected, really?"); */
+    /*         if (tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL) == true) */
+    /*             log_timestamp("disconnected"); */
+    /* } */
+    uint32_t r = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
+    if (strcmp(chat_id, CHAT_ID) == 0)
+        PUBLIC_GROUP_NUM = r;
+    if (r == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK)
+    {
+        if (strcmp(chat_id, CHAT_ID) == 0)
+            joined_group = false;
+        log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_join_to_string(err));
+        log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
+        sendme(m, "failed");
+        return;
+    
+    } else
+    {
+        log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
+        log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
+        /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
+        sendme(m, "ok");
+    }
+    free(key_bin);
+
+}
+static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+{
+    /* if (!friend_is_master(m, friendnumber)) { */
+    /*     authent_failed(m, friendnumber); */
+    /*     log_timestamp("已忽略命令: %d %s", friendnumber, argv[0]); */
+    /*     return; */
+    /* } */
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
         join_public_group(m);
     else
@@ -955,36 +1098,6 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     return num_args; // 注意：执行命令函数时，该变量已经减一，可以看作是参数的个数，不包含命令本身。
 }
 
-/** static struct { */
-/**     const char *name; */
-/**     void (*func)(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH]); */
-/** } commands[] = { */
-static struct CF {
-    const char *name;
-    void (*func)(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH]);
-} commands[] = {
-    { "default",          cmd_default       },
-    { "group",            cmd_group         },
-    { "gmessage",         cmd_gmessage      },
-    { "help",             cmd_help          },
-    { "id",               cmd_id            },
-    { "info",             cmd_info          },
-    { "invite",           cmd_invite        },
-    { "leave",            cmd_leave         },
-    { "master",           cmd_master        },
-    { "name",             cmd_name          },
-    { "passwd",           cmd_passwd        },
-    { "purge",            cmd_purge         },
-    { "status",           cmd_status        },
-    { "statusmessage",    cmd_statusmessage },
-    { "title",            cmd_title_set     },
-    { "init",            cmd_init     },
-    { "join",            cmd_init     },
-    /** { NULL,               NULL              }, */
-};
-
-const int commands_len = sizeof(commands)/sizeof(commands[0]);
-
 
 /** void quick_sort_recursive_swap(int *x, int *y) { */
 void quick_sort_recursive_swap(struct CF *x, struct CF *y) {
@@ -1030,6 +1143,31 @@ int quick_sort(struct CF arr[], int len) {
     quick_sort_recursive(arr, arr+len - 1);
     return 0;
 }
+
+struct CF commands[] = {
+    { "default",          cmd_default       },
+    { "group",            cmd_group         },
+    { "gmessage",         cmd_gmessage      },
+    { "help",             cmd_help          },
+    { "id",               cmd_id            },
+    { "info",             cmd_info          },
+    { "invite",           cmd_invite        },
+    { "leave",            cmd_leave         },
+    { "master",           cmd_master        },
+    { "name",             cmd_name          },
+    { "passwd",           cmd_passwd        },
+    { "purge",            cmd_purge         },
+    { "status",           cmd_status        },
+    { "statusmessage",    cmd_statusmessage },
+    { "title",            cmd_title_set     },
+    { "init",            cmd_init     },
+    { "join",            cmd_join     },
+    { "exit",            cmd_exit     },
+    { "list",            cmd_list     },
+    /** { NULL,               NULL              }, */
+};
+
+const int commands_len = sizeof(commands)/sizeof(commands[0]);
 
 bool commands_sorted = false;
 
@@ -1095,6 +1233,9 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
             log_timestamp("已忽略命令: %d: %s", friendnum, input);
             return -2;
         }
+        if (MY_NUM == UINT32_MAX) {
+            MY_NUM = friendnum;
+        }
         char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH];
         int num_args = my_parse_command(&input[1], args);
         if (num_args == -1) {
@@ -1130,4 +1271,3 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
 
     return -1;
 }
-
