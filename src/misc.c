@@ -63,6 +63,7 @@ size_t hex_string_to_bin2(const char *hex_string, char *val)
     for (size_t i = 0; i < len; ++i, hex_string += 2) {
         sscanf(hex_string, "%2hhx", &val[i]);
     }
+    val[i] = '\0';
 
     return len;
 }

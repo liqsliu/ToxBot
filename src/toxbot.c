@@ -402,9 +402,9 @@ int join_public_group(Tox *m)
     /** if (PUBLIC_GROUP_NUM + 10 > get_time()) */
     /** log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM); */
     log_timestamp("%s", (uint8_t *)CHAT_ID);
-    char *key_bin = hex_string_to_bin(CHAT_ID);
-    /** char key_bin[TOX_GROUP_CHAT_ID_SIZE]; */
-    /** hex_string_to_bin2(CHAT_ID, key_bin); */
+    /** char *key_bin = hex_string_to_bin(CHAT_ID); */
+    char key_bin[TOX_GROUP_CHAT_ID_SIZE*2+1];
+    hex_string_to_bin2(CHAT_ID, key_bin);
     log_timestamp("%s", key_bin);
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)name, strlen(name), NULL, 0, NULL); */
     Tox_Err_Group_Join err;
@@ -420,14 +420,13 @@ int join_public_group(Tox *m)
     /**     } */
     /** } */
     PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
-    free(key_bin);
     if (PUBLIC_GROUP_NUM == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK)
     {
         joined_group = false;
         /** log_timestamp("加入失败，group number: %d", PUBLIC_GROUP_NUM); */
         log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_join_to_string(err));
         /** PUBLIC_GROUP_NUM = get_time(); */
-        return -1;
+        /** return -1; */
     
     } else
     {
@@ -439,21 +438,22 @@ int join_public_group(Tox *m)
 
     log_timestamp("开始加入: %s", CHAT_ID2);
     log_timestamp("%s", (uint8_t *)CHAT_ID2);
-    char * key_bin2 = hex_string_to_bin(CHAT_ID2);
+    /** char * key_bin2 = hex_string_to_bin(CHAT_ID2); */
     /** char key_bin2[TOX_GROUP_CHAT_ID_SIZE-1]; */
-    /** hex_string_to_bin2(CHAT_ID2, key_bin2); */
-    int res = tox_group_join(m, (uint8_t *)key_bin2, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
-    free(key_bin2);
+    hex_string_to_bin2(CHAT_ID2, key_bin);
+    int res = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
     if (res == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK)
     {
         log_timestamp("加入失败，group number: %d, %s", res, tox_err_group_join_to_string(err));
         log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
-        return -1;
+        /** return -1; */
     } else {
         log_timestamp("已加入public group，group number: %d", res);
         print_chat_id(m, res);
         log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
     }
+    /** free(key_bin); */
+    /** free(key_bin2); */
     return 0;
 }
 
