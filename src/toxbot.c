@@ -553,7 +553,7 @@ static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
 
     }
 }
-static void sendg(Tox *m, char *gmsg, size_t, len)
+static void sendg(Tox *m, char *gmsg, size_t len)
 {
     /** log_timestamp("check...send msg to group: %s", gmsg); */
     /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
@@ -574,7 +574,7 @@ static void sendg(Tox *m, char *gmsg, size_t, len)
 
     }
 }
-static void sendgp(Tox *m, char *gmsg, size_t, len)
+static void sendgp(Tox *m, char *gmsg, size_t len)
 {
     log_timestamp("send msg to tox: %s", gmsg);
     TOX_ERR_CONFERENCE_SEND_MESSAGE err;
