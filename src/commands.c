@@ -1039,12 +1039,14 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
     int i;
     if (commands_sorted == false)
     {
+        log_timestamp("开始排序");
         quick_sort(commands, len);
+        log_timestamp("排序结束");
         printf("\nlen %d\n", len);
         for (i = 0; i < len; i++) {
             printf("%s ", commands[i].name);
         }
-        printf("%d\n", len);
+        printf("\nlen: %d\n", len);
         commands_sorted = true;
     }
     int left=0, right=len-1;
@@ -1052,7 +1054,7 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
     int r;
     while (left <= right)
     {
-        log_timestamp("check i: %d %s", i, commands[i].name);
+        log_timestamp("check i: %d %s, %d %d", i, commands[i].name, left, right);
         r = strcmp(args[0], commands[i].name);
         if (r == 0) {
             log_timestamp("cmd: %d %s", i, commands[i].name);
@@ -1060,11 +1062,11 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
             return 0;
         }
         if (r > 0) {
-            i = (right+i+1)/2;
             left = i+1;
+            i = (right+i+1)/2;
         } else {
-            i = (left+i-1)/2;
             right = i-1;
+            i = (left+i-1)/2;
         }
     }
     log_timestamp("not found: %s, %d %d", args[0], left, right);
