@@ -983,7 +983,7 @@ static struct CF {
     /** { NULL,               NULL              }, */
 };
 
-int commands_len = sizeof(commands)/sizeof(commands[0]);
+const int commands_len = sizeof(commands)/sizeof(commands[0]);
 
 
 /** void quick_sort_recursive_swap(int *x, int *y) { */
