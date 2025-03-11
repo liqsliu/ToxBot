@@ -360,15 +360,15 @@ int join_public_group(Tox *m)
     Tox_Err_Group_Join err;
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err); */
     //  https://github.com/TokTok/c-toxcore/blob/81b1e4f6348124784088591c4fe9ab41e273031d/toxcore/tox.h#L3319
-    if (PUBLIC_GROUP_NUM != UINT32_MAX)
-    {
-        if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == true)
-        {
-            log_timestamp("connected, really?");
-            if (tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL) == true)
-                log_timestamp("disconnected");
-        }
-    }
+    /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
+    /** { */
+    /**     if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == true) */
+    /**     { */
+    /**         log_timestamp("connected, really?"); */
+    /**         if (tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL) == true) */
+    /**             log_timestamp("disconnected"); */
+    /**     } */
+    /** } */
     PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
     free(key_bin);
     if (PUBLIC_GROUP_NUM == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK)
