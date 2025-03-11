@@ -337,7 +337,7 @@ int rejoin_public_group(Tox *m, Tox_Group_Number gn)
     {
         /** if (tox_group_reconnect(m, gn, NULL) == true) */
         Tox_Err_Group_Reconnect  err;
-        bool res = tox_group_reconnect(m, gn, &err)
+        bool res = tox_group_reconnect(m, gn, &err);
         if (res == true && err == TOX_ERR_GROUP_RECONNECT_OK)
         {
             log_timestamp("2已加入public group，group number: %d", gn);

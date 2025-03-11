@@ -979,18 +979,18 @@ int commands_len = sizeof(commands)/sizeof(commands[0]);
 
 
 /** void quick_sort_recursive_swap(int *x, int *y) { */
-void quick_sort_recursive_swap(CF *x, CF *y) {
-    CF t = *x;
+void quick_sort_recursive_swap(struct CF *x, struct CF *y) {
+    struct CF t = *x;
     /** printf("swap: %d %d\n", *x, *y); */
     *x = *y;
     *y = t;
 }
 /** void quick_sort_recursive( int *start, int *end) { */
-void quick_sort_recursive( CF *start, CF *end) {
+void quick_sort_recursive( struct CF *start, struct CF *end) {
     if (start >= end)
         return;
     /** int *left = start, *right = end - 1; */
-    CF *left = start, *right = end - 1;
+    struct CF *left = start, *right = end - 1;
     while (left < right) {
         /** if (*right >= *end) */
         /** if (*right >= *end) */
@@ -1018,8 +1018,9 @@ void quick_sort_recursive( CF *start, CF *end) {
     quick_sort_recursive(left+1, end);
 }
 /** int quick_sort(int arr[], int len) { */
-int quick_sort(CF arr[], int len) {
+int quick_sort(struct CF arr[], int len) {
     quick_sort_recursive(arr, arr+len - 1);
+    return 0;
 }
 
 bool commands_sorted = false;
@@ -1038,13 +1039,13 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
         printf("%d\n", len);
         commands_sorted = true;
     }
-    int left=0; right=len-1;
+    int left=0, right=len-1;
     i = len/2;
     int r;
     while (left <= right)
     {
         log_timestamp("check i: %d %s", i, commands[i].name);
-        r = (strcmp(args[0], commands[i].name);
+        r = strcmp(args[0], commands[i].name);
         if (r == 0) {
             (commands[i].func)(m, friendnum, num_args - 1, args);
             return 0;
@@ -1053,7 +1054,7 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
             i = (right+i+1)/2;
             left = i+1;
         } else {
-            i = (left+i-1)/2
+            i = (left+i-1)/2;
             right = i-1;
         }
     }
@@ -1094,14 +1095,19 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
     } else if (strcmp(input, "invite") == 0) {
         /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
         /** int num_args = parse_command(input, args); */
-        char ** args={
-            "invite"
+        /* char args[][8]={ */
+        /* char * args[]={ */
+        char * args[TOX_MAX_MESSAGE_LENGTH]={
+        /* char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]={ */
+            "invite",
         };
         int num_args = 1;
         return do_command(m, friendnum, num_args, args);
     } else if (strcmp(input, "help") == 0) {
-        char ** args={
-            "help"
+        /* char * args[]={ */
+        char * args[TOX_MAX_MESSAGE_LENGTH]={
+        /* char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]={ */
+            "help",
         };
         int num_args = 1;
         return do_command(m, friendnum, num_args, args);
