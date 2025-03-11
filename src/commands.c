@@ -952,7 +952,7 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
         printf(" \"%s\"", args[i]);
     }
     printf("\n");
-    return num_args;
+    return num_args; // 注意：执行命令函数时，该变量已经减一，可以看作是参数的个数，不包含命令本身。
 }
 
 /** static struct { */
@@ -1036,7 +1036,7 @@ bool commands_sorted = false;
 static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX_COMMAND_LENGTH])
 {
     /* int len = commands_len; */
-    static int i;
+    static int i; // static 可以做到保存上次查找到的位置，下次查找直接从该位置检查。如果命令相同，可以节省查找时间
     if (commands_sorted == false)
     {
         log_timestamp("开始排序");
@@ -1115,15 +1115,15 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
         };
         int num_args = 1;
         return do_command(m, friendnum, num_args, args);
-    } else if (strcmp(input, "help") == 0) {
-        /* char * args[]={ */
-        /* char * args[TOX_MAX_MESSAGE_LENGTH]={ */
-        char args[][TOX_MAX_MESSAGE_LENGTH]={
-        /* char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]={ */
-            "help",
-        };
-        int num_args = 1;
-        return do_command(m, friendnum, num_args, args);
+    /* } else if (strcmp(input, "help") == 0) { */
+    /*     [> char * args[]={ <] */
+    /*     [> char * args[TOX_MAX_MESSAGE_LENGTH]={ <] */
+    /*     char args[][TOX_MAX_MESSAGE_LENGTH]={ */
+    /*     [> char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]={ <] */
+    /*         "help", */
+    /*     }; */
+    /*     int num_args = 1; */
+    /*     return do_command(m, friendnum, num_args, args); */
     } else {
         return -1;
     }
