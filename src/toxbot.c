@@ -403,7 +403,8 @@ int join_public_group(Tox *m)
     /** log_timestamp("开始加入: %d", PUBLIC_GROUP_NUM); */
     log_timestamp("%s", (uint8_t *)CHAT_ID);
     /** char *key_bin = hex_string_to_bin(CHAT_ID); */
-    char key_bin[TOX_GROUP_CHAT_ID_SIZE*2+1];
+    /** char key_bin[TOX_GROUP_CHAT_ID_SIZE*2+1]; */
+    char key_bin[65];
     hex_string_to_bin2(CHAT_ID, key_bin);
     log_timestamp("%s", key_bin);
     /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)name, strlen(name), NULL, 0, NULL); */
