@@ -947,7 +947,11 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     return num_args;
 }
 
-static struct {
+/** static struct { */
+/**     const char *name; */
+/**     void (*func)(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH]); */
+/** } commands[] = { */
+static struct CF {
     const char *name;
     void (*func)(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH]);
 } commands[] = {
@@ -968,20 +972,102 @@ static struct {
     { "title",            cmd_title_set     },
     { "init",            cmd_init     },
     { "join",            cmd_init     },
-    { NULL,               NULL              },
+    /** { NULL,               NULL              }, */
 };
+
+int commands_len = sizeof(commands)/sizeof(commands[0]);
+
+
+/** void quick_sort_recursive_swap(int *x, int *y) { */
+void quick_sort_recursive_swap(CF *x, CF *y) {
+    CF t = *x;
+    /** printf("swap: %d %d\n", *x, *y); */
+    *x = *y;
+    *y = t;
+}
+/** void quick_sort_recursive( int *start, int *end) { */
+void quick_sort_recursive( CF *start, CF *end) {
+    if (start >= end)
+        return;
+    /** int *left = start, *right = end - 1; */
+    CF *left = start, *right = end - 1;
+    while (left < right) {
+        /** if (*right >= *end) */
+        /** if (*right >= *end) */
+        if (strcmp((*right).name, (*end).name) >= 0)
+
+            --right;
+        /** else if (*left < *end) */
+        else if (strcmp((*left).name, (*end).name) < 0)
+            ++left;
+        else
+        {
+            quick_sort_recursive_swap(left, right);
+            ++left;
+            --right;
+        }
+    }
+    /** printf("finally left: %d\n", left-start); */
+    if (left > right)
+        --left;
+    /** else if (*left > *end) */
+    else if (strcmp((*left).name, (*end).name) > 0)
+        quick_sort_recursive_swap(left, end);
+
+    quick_sort_recursive(start, left);
+    quick_sort_recursive(left+1, end);
+}
+/** int quick_sort(int arr[], int len) { */
+int quick_sort(CF arr[], int len) {
+    quick_sort_recursive(arr, arr+len - 1);
+}
+
+bool commands_sorted = false;
 
 static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX_COMMAND_LENGTH])
 {
-    for (size_t i = 0; commands[i].name; ++i) {
-        if (strcmp(args[0], commands[i].name) == 0) {
+    int len = commands_len;
+    int i;
+    if (commands_sorted == false)
+    {
+        quick_sort(commands, len);
+        printf("\nlen %d\n", len);
+        for (i = 0; i < len; i++) {
+            printf("%s ", commands[i].name);
+        }
+        printf("%d\n", len);
+        commands_sorted = true;
+    }
+    int left=0; right=len-1;
+    i = len/2;
+    int r;
+    while (left <= right)
+    {
+        log_timestamp("check i: %d %s", i, commands[i].name);
+        r = (strcmp(args[0], commands[i].name);
+        if (r == 0) {
             (commands[i].func)(m, friendnum, num_args - 1, args);
             return 0;
         }
+        if (r > 0) {
+            i = (right+i+1)/2;
+            left = i+1;
+        } else {
+            i = (left+i-1)/2
+            right = i-1;
+        }
     }
+
+    /** for (size_t i = 0; commands[i].name; ++i) { */
+    /**     if (strcmp(args[0], commands[i].name) == 0) { */
+    /**         (commands[i].func)(m, friendnum, num_args - 1, args); */
+    /**         return 0; */
+    /**     } */
+    /** } */
 
     return -1;
 }
+
 
 int execute(Tox *m, uint32_t friendnum, const char *input, int length)
 {

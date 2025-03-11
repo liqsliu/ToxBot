@@ -327,7 +327,6 @@ static void cb_group_titlechange(Tox *m, uint32_t groupnumber, uint32_t peernumb
 /* } */
 
 
-
 int rejoin_public_group(Tox *m, Tox_Group_Number gn)
 {
     if(tox_group_is_connected(m, gn, NULL) == true)
@@ -336,7 +335,10 @@ int rejoin_public_group(Tox *m, Tox_Group_Number gn)
             log_timestamp("disconnected");
     if(true)
     {
-        if (tox_group_reconnect(m, gn, NULL) == true)
+        /** if (tox_group_reconnect(m, gn, NULL) == true) */
+        Tox_Err_Group_Reconnect  err;
+        bool res = tox_group_reconnect(m, gn, &err)
+        if (res == true && err == TOX_ERR_GROUP_RECONNECT_OK)
         {
             log_timestamp("2已加入public group，group number: %d", gn);
             char public_key[TOX_PUBLIC_KEY_SIZE];
@@ -350,9 +352,11 @@ int rejoin_public_group(Tox *m, Tox_Group_Number gn)
                 printf("%hhX", public_key[i]);
             }
             printf("\n");
+            log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
         } else {
-            log_timestamp("2failed，group number: %d", gn);
             joined_group = false;
+            log_timestamp("2failed，group number: %d", gn);
+            log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
             return -1;
         }
     }
@@ -384,18 +388,20 @@ int join_public_group(Tox *m)
                 log_timestamp("disconnected");
     }
     PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)key_bin, BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
-    if (PUBLIC_GROUP_NUM == UINT32_MAX)
+    if (PUBLIC_GROUP_NUM == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK)
     {
+        joined_group = false;
         /** log_timestamp("加入失败，group number: %d", PUBLIC_GROUP_NUM); */
         log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_join_to_string(err));
+        log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
         /** PUBLIC_GROUP_NUM = get_time(); */
-        joined_group = false;
         return -1;
     
     } else
     {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        rejoin_public_group(m, PUBLIC_GROUP_NUM);
+        log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
+        /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
     }
     free(key_bin);
 
