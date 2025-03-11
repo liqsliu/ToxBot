@@ -434,11 +434,11 @@ static void join_public_group_by_chat_id(Tox *m, char *chat_id)
             joined_group = false;
         }
         /** log_timestamp("加入失败，group number: %d", PUBLIC_GROUP_NUM); */
-        log_timestamp("加入失败，public group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_join_to_string(err));
+        log_timestamp("加入失败，public group number: %d, %s", res, tox_err_group_join_to_string(err));
         /** PUBLIC_GROUP_NUM = get_time(); */
         /** return -1; */
     } else {
-        log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
+        log_timestamp("已加入public group，group number: %d", res);
         /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
         print_chat_id(m, res);
     }
