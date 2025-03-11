@@ -365,13 +365,15 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
 
         char title[TOX_MAX_NAME_LENGTH];
         int len;
-        for (int i=0; i<n; ++i)
+        int i, j;
+        for (i=0; i<n; ++i)
         {
             sprintf(outmsg+strlen(outmsg), "%d", i);
 
             tox_group_get_name(m, i, (uint8_t *) title, NULL);
             len = tox_group_get_name_size(m, i, NULL);
             title[len] = '\0';
+            log_timestamp("title: %d. %s", i, title);
             sprintf(outmsg+strlen(outmsg), " %s ", title);
 
             char public_key[TOX_PUBLIC_KEY_SIZE];
@@ -382,15 +384,49 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
                 outmsg[0] = '\0';
                 break;
             }
-            for (int i=0; i<sizeof(public_key); i++)
+            for (j=0; j<sizeof(public_key); j++)
             {
                 /* printf("%hhX", public_key[i]); */
-                sprintf(outmsg+strlen(outmsg), "%hhX", public_key[i]);
+                sprintf(outmsg+strlen(outmsg), "%hhX", public_key[j]);
             }
             sendme(m, outmsg);
             outmsg[0] = '\0';
         }
     }
+}
+static void cmd_rejoin(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+{
+    if (argc == 0) {
+        sendme(m, ".rejoin number");
+        return;
+    }
+    int gn = String2Int(argv[1]);
+    if(tox_group_is_connected(m, gn, NULL) == true)
+    {
+        log_timestamp("connected, really?");
+        sendme(m, "connected?");
+    }
+    else
+        sendme(m, "not connected");
+    if (tox_group_disconnect(m, gn, NULL) == true)
+    {
+        sendme(m, "disconnected");
+    }
+    else
+        sendme(m, "disconnected failed");
+    /* sleep(1); */
+    Tox_Err_Group_Reconnect  err;
+    bool res = tox_group_reconnect(m, gn, &err);
+    if (res == true && err == TOX_ERR_GROUP_RECONNECT_OK)
+    {
+        sendme(m, "reconnect ok");
+    } else {
+        sendme(m, "reconnect failed");
+    }
+    /* sleep(1); */
+    int n = tox_group_get_number_groups(m);
+    log_timestamp("现在群数量: %d", n);
+
 }
 static void cmd_join(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
@@ -426,8 +462,9 @@ static void cmd_join(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
         sendme(m, "failed");
         return;
     
-    } else
-    {
+    } else {
+        if (strcmp(chat_id, CHAT_ID) == 0)
+            joined_group = true;
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
         log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
         /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
@@ -1162,6 +1199,7 @@ struct CF commands[] = {
     { "title",            cmd_title_set     },
     { "init",            cmd_init     },
     { "join",            cmd_join     },
+    { "rejoin",            cmd_rejoin     },
     { "exit",            cmd_exit     },
     { "list",            cmd_list     },
     /** { NULL,               NULL              }, */

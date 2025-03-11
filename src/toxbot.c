@@ -209,7 +209,7 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
 
     // add by liqsliu
     if (strcmp(message, "ping") == 0) {
-        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "pong", strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "pong", strlen("pong"), NULL);
         return;
     }
     /** if (length > 1) { */
@@ -331,9 +331,11 @@ static void cb_group_titlechange(Tox *m, uint32_t groupnumber, uint32_t peernumb
 int rejoin_public_group(Tox *m, Tox_Group_Number gn)
 {
     if(tox_group_is_connected(m, gn, NULL) == true)
+    {
         log_timestamp("connected, really?");
         if (tox_group_disconnect(m, gn, NULL) == true)
             log_timestamp("disconnected");
+    }
     if(true)
     {
         /** if (tox_group_reconnect(m, gn, NULL) == true) */
@@ -362,6 +364,7 @@ int rejoin_public_group(Tox *m, Tox_Group_Number gn)
         }
     }
     log_timestamp("rejoined ok");
+    return 0;
 }
 
 int join_public_group(Tox *m)
@@ -384,11 +387,13 @@ int join_public_group(Tox *m)
     if (PUBLIC_GROUP_NUM != UINT32_MAX)
     {
         if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == true)
+        {
             log_timestamp("connected, really?");
             if (tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL) == true)
                 log_timestamp("disconnected");
+        }
     }
-    PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)key_bin, BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
+    PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
     if (PUBLIC_GROUP_NUM == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK)
     {
         joined_group = false;
@@ -405,7 +410,7 @@ int join_public_group(Tox *m)
         /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
     }
     free(key_bin);
-
+    return 0;
 }
 
 static void cb_group_invite2(
@@ -470,7 +475,7 @@ static void cb_conference_message(
     len = tox_conference_get_title_size(m, conference_number, NULL);
     title[len] = '\0';
 
-    if (name == BOT_NAME) {
+    if (strcmp(name, BOT_NAME) == 0) {
         log_timestamp("忽略bot自己发的消息: %s [%s]: %s", title, name, message);
         return;
     }
@@ -573,7 +578,7 @@ static void *my_daemon(void *mv)
     Tox *m = (Tox *)mv;
     FILE *fd_gm;
     char gmsg[TOX_MAX_MESSAGE_LENGTH];
-    char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
+    /* char gmsgtmp[TOX_MAX_MESSAGE_LENGTH]; */
     while(1)
     {
         /** fd_gm = popen("/run/user/1000/bot/gm_stream.sh", "r"); */
@@ -607,68 +612,68 @@ static void *my_daemon(void *mv)
 }
 
 
-static void get_msg_from_mt(Tox *m)
-{
-    /** if (joined_group == false) */
-    {
-        if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
-            return;
-        join_public_group(m);
-    }
-    /* if (gm_lock == true) */
-    /* { */
-    /*     log_timestamp("gm task is busy"); */
-    /*     return; */
-    /* } else */
-    /*     gm_lock = true; */
-    /*  */
-    /* [>* fd = popen(GM_SH_PATH, "r"); <] */
-    /* fd_gm = popen("/run/user/1000/bot/gm.sh", "r"); */
-    /* if (fd_gm == NULL) */
-    /* { */
-    /*     log_timestamp("不能执行gm.sh"); */
-    /*     return; */
-    /* } */
-    /* gmsg[0] = '\0'; */
-    /* while (1) */
-    /* { */
-    /*     gmsgtmp[0] = '\0'; */
-    /*     if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL) */
-    /*     { */
-    /*         [>* log_timestamp("gm ok"); <] */
-    /*         [>* join_public_group(m); <] */
-    /*         break; */
-    /*     } */
-    /*     log_timestamp("got msg from mt: %s", gmsgtmp); */
-    /*     if (strlen(gmsgtmp) == 0) */
-    /*         continue; */
-    /*     if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH) */
-    /*     { */
-    /*         send_to_tox(m, gmsg, strlen(gmsg)); */
-    /*         gmsg[0] = '\0'; */
-    /*     } */
-    /*     strcat(gmsg, gmsgtmp); */
-    /*  */
-    /*     [>* if (strlen(gmsgtmp) >= TOX_MAX_MESSAGE_LENGTH-1) <] */
-    /*     [>* { <] */
-    /*     [>*     send_to_tox(m, gmsg, strlen(gmsg)); <] */
-    /*     [>*     gmsg[0] = '\0'; <] */
-    /*     [>*     send_to_tox(m, gmsgtmp, strlen(gmsgtmp)); <] */
-    /*     [>* } else { <] */
-    /*     [>*     if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH-1) <] */
-    /*     [>*     { <] */
-    /*     [>*         send_to_tox(m, gmsg, strlen(gmsg)); <] */
-    /*     [>*         gmsg[0] = '\0'; <] */
-    /*     [>*     } <] */
-    /*     [>*     strcat(gmsg, gmsgtmp); <] */
-    /*     [>* } <] */
-    /* } */
-    /* //memset(msgfw, 0, sizeof(msgfw)); */
-    /* send_to_tox(m, gmsg, strlen(gmsg)); */
-    /* pclose(fd_gm); */
-    /* gm_lock = false; */
-
-}
+/* static void get_msg_from_mt(Tox *m) */
+/* { */
+/*     [>* if (joined_group == false) <] */
+/*     { */
+/*         if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected) */
+/*             return; */
+/*         join_public_group(m); */
+/*     } */
+/*     [> if (gm_lock == true) <] */
+/*     [> { <] */
+/*     [>     log_timestamp("gm task is busy"); <] */
+/*     [>     return; <] */
+/*     [> } else <] */
+/*     [>     gm_lock = true; <] */
+/*     [>  <] */
+/*     [> [>* fd = popen(GM_SH_PATH, "r"); <] <] */
+/*     [> fd_gm = popen("/run/user/1000/bot/gm.sh", "r"); <] */
+/*     [> if (fd_gm == NULL) <] */
+/*     [> { <] */
+/*     [>     log_timestamp("不能执行gm.sh"); <] */
+/*     [>     return; <] */
+/*     [> } <] */
+/*     [> gmsg[0] = '\0'; <] */
+/*     [> while (1) <] */
+/*     [> { <] */
+/*     [>     gmsgtmp[0] = '\0'; <] */
+/*     [>     if (fgets(gmsgtmp, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL) <] */
+/*     [>     { <] */
+/*     [>         [>* log_timestamp("gm ok"); <] <] */
+/*     [>         [>* join_public_group(m); <] <] */
+/*     [>         break; <] */
+/*     [>     } <] */
+/*     [>     log_timestamp("got msg from mt: %s", gmsgtmp); <] */
+/*     [>     if (strlen(gmsgtmp) == 0) <] */
+/*     [>         continue; <] */
+/*     [>     if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH) <] */
+/*     [>     { <] */
+/*     [>         send_to_tox(m, gmsg, strlen(gmsg)); <] */
+/*     [>         gmsg[0] = '\0'; <] */
+/*     [>     } <] */
+/*     [>     strcat(gmsg, gmsgtmp); <] */
+/*     [>  <] */
+/*     [>     [>* if (strlen(gmsgtmp) >= TOX_MAX_MESSAGE_LENGTH-1) <] <] */
+/*     [>     [>* { <] <] */
+/*     [>     [>*     send_to_tox(m, gmsg, strlen(gmsg)); <] <] */
+/*     [>     [>*     gmsg[0] = '\0'; <] <] */
+/*     [>     [>*     send_to_tox(m, gmsgtmp, strlen(gmsgtmp)); <] <] */
+/*     [>     [>* } else { <] <] */
+/*     [>     [>*     if (strlen(gmsg)+strlen(gmsgtmp) > TOX_MAX_MESSAGE_LENGTH-1) <] <] */
+/*     [>     [>*     { <] <] */
+/*     [>     [>*         send_to_tox(m, gmsg, strlen(gmsg)); <] <] */
+/*     [>     [>*         gmsg[0] = '\0'; <] <] */
+/*     [>     [>*     } <] <] */
+/*     [>     [>*     strcat(gmsg, gmsgtmp); <] <] */
+/*     [>     [>* } <] <] */
+/*     [> } <] */
+/*     [> //memset(msgfw, 0, sizeof(msgfw)); <] */
+/*     [> send_to_tox(m, gmsg, strlen(gmsg)); <] */
+/*     [> pclose(fd_gm); <] */
+/*     [> gm_lock = false; <] */
+/*  */
+/* } */
 // add by liqsliu
 
 /* END CALLBACKS */
