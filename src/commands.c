@@ -1042,11 +1042,10 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
         log_timestamp("开始排序");
         quick_sort(commands, len);
         log_timestamp("排序结束");
-        printf("\nlen %d\n", len);
         for (i = 0; i < len; i++) {
-            printf("%s ", commands[i].name);
+            printf("%d %s\n", i+1, commands[i].name);
         }
-        printf("\nlen: %d\n", len);
+        printf("\n\nlen: %d\n", len);
         commands_sorted = true;
     }
     int left=0, right=len-1;
