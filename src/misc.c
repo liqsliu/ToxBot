@@ -56,6 +56,21 @@ char *hex_string_to_bin(const char *hex_string)
 
     return val;
 }
+int hex_string_to_bin2(const char *hex_string, char *val)
+{
+    size_t len = strlen(hex_string);
+    char *val = malloc(len);
+
+    if (val == NULL) {
+        exit(EXIT_FAILURE);
+    }
+
+    for (size_t i = 0; i < len; ++i, hex_string += 2) {
+        sscanf(hex_string, "%2hhx", &val[i]);
+    }
+
+    return val;
+}
 
 off_t file_size(const char *path)
 {

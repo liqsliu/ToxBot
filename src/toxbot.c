@@ -385,6 +385,25 @@ int join_public_group(Tox *m)
         log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
         /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
     }
+
+
+    log_timestamp("开始加入: %s", CHAT_ID2);
+    log_timestamp("%s", (uint8_t *)CHAT_ID2);
+    key_bin = hex_string_to_bin(CHAT_ID);
+    Tox_Err_Group_Join err;
+    int res = tox_group_join(m, (uint8_t *)hex_string_to_bin(CHAT_ID), (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
+    if (res == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK)
+    {
+        log_timestamp("加入失败，group number: %d, %s", res, tox_err_group_join_to_string(err));
+        log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
+        return -1;
+    
+    } else
+    {
+        log_timestamp("已加入public group，group number: %d", res);
+        log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
+    }
+
     free(key_bin);
     return 0;
 }
