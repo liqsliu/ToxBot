@@ -546,11 +546,8 @@ static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
 {
     if (len >= 1)
     {
-
-        sendg(m, gmsg, len)
-        sendgp(m, gmsg, len)
-
-
+        sendg(m, gmsg, len);
+        sendgp(m, gmsg, len);
     }
 }
 static void sendg(Tox *m, char *gmsg, size_t len)
