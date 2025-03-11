@@ -202,7 +202,6 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
         return;
     }
 
-    const char *outmsg;
     char message[TOX_MAX_MESSAGE_LENGTH];
     length = copy_tox_str(message, sizeof(message), (const char *) string, length);
     message[length] = '\0';
@@ -212,33 +211,10 @@ static void cb_friend_message(Tox *m, uint32_t friendnumber, TOX_MESSAGE_TYPE ty
         tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "pong", strlen("pong"), NULL);
         return;
     }
-    /** if (length > 1) { */
-    /**     if (message[0] == '.') { */
-    /**         [> if (strcmp(message, ".join") == 0) { <] */
-    /**         [>     if (PUBLIC_GROUP_NUM == UINT32_MAX) <] */
-    /**         [>         join_public_group(m); <] */
-    /**         [>     else <] */
-    /**         [>         rejoin_public_group(m, PUBLIC_GROUP_NUM); <] */
-    /**         [>      <] */
-    /**         [>     if (joined_group == true) <] */
-    /**         [>         outmsg = "ok"; <] */
-    /**         [>     else <] */
-    /**         [>         outmsg = "failed"; <] */
-    /**         [>     tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL); <] */
-    /**         [>     return; <] */
-    /**         [> } <] */
-    /**         if (length && execute(m, friendnumber, message, length) == -1) { */
-    /**             outmsg = "？"; */
-    /**             tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL); */
-    /**         } */
-    /**         return; */
-    /**     } */
-    /** } */
-    // add by liqsliu
 
     /** if (length && execute(m, friendnumber, message, length) == -1) { */
     if (execute(m, friendnumber, message, length) == -1) {
-        outmsg = "？";
+        const char *outmsg="？";
         tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     }
 }
