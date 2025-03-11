@@ -457,7 +457,11 @@ static void cb_conference_message(
     Tox *m, Tox_Conference_Number conference_number, Tox_Conference_Peer_Number peer_number,
     Tox_Message_Type type, const uint8_t message[], size_t length, void *user_data)
 {
-    log_timestamp("conference msg: %d %d %s", conference_number, peer_number, message);
+    /* log_timestamp("conference msg: %d %d %s", conference_number, peer_number, message); */
+    char text[TOX_MAX_MESSAGE_LENGTH];
+    length = copy_tox_str(text, sizeof(text), (const char *) message, length);
+    text[length] = '\0';
+    log_timestamp("conference msg: %d %d %s", conference_number, peer_number, text);
     /** int idx = group_index(peer_number); //得到的是发信人在群成员列表的位置*/
     int idx = group_index(conference_number);
     if (idx == -1) {
@@ -476,32 +480,35 @@ static void cb_conference_message(
     title[len] = '\0';
 
     if (strcmp(name, BOT_NAME) == 0) {
-        log_timestamp("忽略bot自己发的消息: %s [%s]: %s", title, name, message);
+        log_timestamp("忽略bot自己发的消息: %s [%s]: %s", title, name, text);
         return;
     }
 
     if (idx == 0)
     {
-        log_timestamp("群消息: %s [%s]: %s", title, name, message);
+        log_timestamp("群消息: %s [%s]: %s", title, name, text);
         if (strcmp(name, "bot") != 0)
         {
             char smsg[2048] = SM_SH_PATH;
             /** char smsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n"; */
             strcat(smsg, name);
             strcat(smsg, "\nEOF\n)\" \"$(cat <<EOF\n");
-            strcat(smsg, (char *)message);
+            strcat(smsg, (char *)text);
             strcat(smsg, "\nEOF\n)\"");
             system(smsg);
         }
     } else {
-        log_timestamp("忽略来自其他群的消息: %d %s [%s]: %s", idx, title, name, message);
+        log_timestamp("忽略来自其他群的消息: %d %s [%s]: %s", idx, title, name, text);
     }
 }
 static void cb_group_message(
     Tox *m, Tox_Group_Number group_number, Tox_Group_Peer_Number peer_id, Tox_Message_Type message_type,
     const uint8_t message[], size_t message_length, Tox_Group_Message_Id message_id, void *user_data)
 {
-    log_timestamp("group msg: %d %d %s", group_number, peer_id, message);
+    char text[TOX_MAX_MESSAGE_LENGTH];
+    message_length = copy_tox_str(text, sizeof(text), (const char *) message, message_length);
+    text[message_length] = '\0';
+    log_timestamp("group msg: %d %d %s", group_number, peer_id, text);
     char name[TOX_MAX_NAME_LENGTH];
     tox_group_peer_get_name(m, group_number, peer_id, (uint8_t *) name, NULL);
     size_t len = tox_group_peer_get_name_size(m, group_number, peer_id, NULL);
@@ -514,19 +521,19 @@ static void cb_group_message(
 
     if (group_number == PUBLIC_GROUP_NUM)
     {
-        log_timestamp("ngc群消息: %s [%s]: %s", title, name, message);
+        log_timestamp("ngc群消息: %s [%s]: %s", title, name, text);
         if (strcmp(name, "bot") != 0)
         {
             char smsg[2048] = SM_SH_PATH;
             /** char smsg[2048] = "bash /run/user/1000/bot/sm.sh \"$(cat <<EOF\n"; */
             strcat(smsg, name);
             strcat(smsg, "\nEOF\n)\" \"$(cat <<EOF\n");
-            strcat(smsg, (char *)message);
+            strcat(smsg, (char *)text);
             strcat(smsg, "\nEOF\n)\"");
             system(smsg);
         }
     } else {
-        log_timestamp("忽略来自其他ngc群的消息: %d %s [%s]: %s", group_number, title, name, message);
+        log_timestamp("忽略来自其他ngc群的消息: %d %s [%s]: %s", group_number, title, name, text);
     }
 }
 
