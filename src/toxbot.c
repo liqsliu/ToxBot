@@ -1269,9 +1269,9 @@ if (rc != 0)
         last_join = cur_time;
     } else if (cur_time - last_join > 5) {
         /** PUBLIC_GROUP_NUM == 0; */
-        log_timestamp("join group")
+        log_timestamp("join group");
         join_public_group(m);
-        log_timestamp("joined")
+        log_timestamp("joined");
         last_join = cur_time;
     }
 // add by liqsliu
