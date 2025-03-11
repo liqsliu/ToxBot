@@ -482,10 +482,10 @@ static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     /*     return; */
     /* } */
     if (PUBLIC_GROUP_NUM == UINT32_MAX)
+    {
         join_public_group(m);
         log_timestamp("join: %s", CHAT_ID);
-    else
-    {
+    } else {
         rejoin_public_group(m, PUBLIC_GROUP_NUM);
         log_timestamp("rejoin: %d", PUBLIC_GROUP_NUM);
     }
