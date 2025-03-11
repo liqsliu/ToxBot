@@ -440,7 +440,7 @@ static void join_public_group_by_chat_id(Tox *m, char *chat_id)
     } else {
         log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
         /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
-        print_chat_id(m, PUBLIC_GROUP_NUM);
+        print_chat_id(m, res);
     }
     /* free(key_bin); */
 }
