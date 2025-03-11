@@ -1035,28 +1035,28 @@ bool commands_sorted = false;
 
 static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX_COMMAND_LENGTH])
 {
-    int len = commands_len;
-    int i;
+    /* int len = commands_len; */
+    static int i;
     if (commands_sorted == false)
     {
         log_timestamp("开始排序");
-        quick_sort(commands, len);
+        quick_sort(commands, commands_len);
         log_timestamp("排序结束");
-        for (i = 0; i < len; i++) {
+        for (i = 0; i < commands_len; i++) {
             printf("%d %s\n", i+1, commands[i].name);
         }
-        printf("\n\nlen: %d\n", len);
+        printf("\n\ncommands_len: %d\n", commands_len);
         commands_sorted = true;
+        i = commands_len/2;
     }
-    int left=0, right=len-1;
-    i = len/2;
+    int left=0, right=commands_len-1;
     int r;
     while (left <= right)
     {
         log_timestamp("check i: %d %s, %d %d", i, commands[i].name, left, right);
         r = strcmp(args[0], commands[i].name);
         if (r == 0) {
-            log_timestamp("cmd: %d %s", i, commands[i].name);
+            log_timestamp("hit cmd: %d %s", i, commands[i].name);
             (commands[i].func)(m, friendnum, num_args - 1, args);
             return 0;
         }
