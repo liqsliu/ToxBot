@@ -49,6 +49,7 @@ static struct CF {
 };
 // add by liqsliu
 /* #define MAX_NUM_ARGS 16 //测试结果: 重复定义会以第二次定义的为准 */
+#define MAX_GROUPS 64
 extern uint32_t PUBLIC_GROUP_NUM;
 extern uint32_t MY_NUM;
 extern bool joined_group;
@@ -351,6 +352,27 @@ static void cmd_exit(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     else
         sendme(m, "failed");
 }
+int save_chat_ids(char *chat_ids)
+{
+    char * path="group_chat_ids";
+    if (path == NULL) {
+        goto on_error;
+    }
+    FILE *fp = fopen(path, "wb");
+    if (fp == NULL) {
+        goto on_error;
+    }
+    if (fwrite(chat_ids, strlen(chat_ids), 1, fp) != 1) {
+        fclose(fp);
+        goto on_error;
+    }
+    fclose(fp);
+    return 0;
+
+on_error:
+    log_error_timestamp(-1, "Warning: save failed");
+    return -1;
+}
 static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     int n = tox_group_get_number_groups(m);
@@ -371,6 +393,7 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
         char title[TOX_MAX_NAME_LENGTH];
         int len;
         int i, j;
+        char chat_ids[TOX_GROUP_CHAT_ID_SIZE*MAX_GROUPS*2+MAX_GROUPS]={0};
         for (i=0; i<n; ++i)
         {
             sprintf(outmsg+strlen(outmsg), "%d", i);
@@ -390,14 +413,24 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
                 outmsg[0] = '\0';
                 break;
             }
+            if (strlen(chat_ids) != 0)
+                chat_ids[strlen(chat_ids)] = '\n';
             for (j=0; j<sizeof(public_key); j++)
             {
                 /* printf("%hhX", public_key[i]); */
                 sprintf(outmsg+strlen(outmsg), "%hhX", public_key[j]);
+                sprintf(chat_ids+strlen(chat_ids), "%hhX", public_key[j]);
             }
             tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
             outmsg[0] = '\0';
+            if (i >= MAX_GROUPS) {
+                sprintf(outmsg+strlen(outmsg), "群数量已达到上限: %d/%d", MAX_GROUPS, n);
+                tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+                break;
+            }
+
         }
+        save_chat_ids(chat_ids);
     }
 }
 static void cmd_rejoin(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])

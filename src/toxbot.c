@@ -450,6 +450,36 @@ int join_public_group(Tox *m)
     join_public_group_by_chat_id(m, CHAT_ID);
     join_public_group_by_chat_id(m, CHAT_ID2);
 
+    char * path="group_chat_ids";
+    FILE *fd = fopen(path, "r");
+    if (fp == NULL) {
+        log_error_timestamp(-1, "Warning: can't open file: %s", path);
+        return -1;
+    }
+    char * chat_id[TOX_GROUP_CHAT_ID_SIZE*2+2];
+    size_t len;
+    while(1)
+    {
+        if (fgets(chat_id, TOX_GROUP_CHAT_ID_SIZE*2+1, fd) == NULL)
+        {
+            len = strlen(chat_id);
+            if (chat_id[len-1] == '\n') {
+                chat_id[len-1] == '\0';
+                log_timestamp("deleted \\n: %s", chat_id);
+            }
+        } esle {
+            break;
+        }
+        if (strcmp(chat_id, CHAT_ID) == 0) {
+            continue;
+        }
+        if (strcmp(chat_id, CHAT_ID2) == 0) {
+            continue;
+        }
+        join_public_group_by_chat_id(m, chat_id);
+    }
+    pclose(fd);
+
     /** log_timestamp("开始加入: %s", CHAT_ID2); */
     /** [> log_timestamp("%s", (uint8_t *)CHAT_ID2); <] */
     /** char * key_bin2 = hex_string_to_bin(CHAT_ID2); */
