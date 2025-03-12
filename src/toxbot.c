@@ -330,12 +330,12 @@ void sendgp(Tox *m, char *gmsg, size_t len)
         TOX_ERR_CONFERENCE_SEND_MESSAGE err;
         //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
         tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
-    }
-    if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK)
-    {
-       log_timestamp("failed send conference msg: %s: %s", tox_err_conference_send_message_to_string(err), gmsg);
-    } else {
-        log_timestamp("sent: %s", gmsg);
+        if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK)
+        {
+           log_timestamp("failed send conference msg: %s: %s", tox_err_conference_send_message_to_string(err), gmsg);
+        } else {
+            log_timestamp("sent: %s", gmsg);
+        }
     }
 }
 static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
