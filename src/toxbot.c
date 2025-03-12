@@ -392,7 +392,7 @@ int rejoin_public_group(Tox *m, Tox_Group_Number gn)
     log_timestamp("rejoined ok");
     return 0;
 }
-static void join_public_group_by_chat_id(Tox *m, char *chat_id)
+int join_public_group_by_chat_id(Tox *m, char *chat_id)
 {
     if (strlen(chat_id) < 16) {
         log_timestamp("wrong chat_id: %s", chat_id);
@@ -440,13 +440,14 @@ static void join_public_group_by_chat_id(Tox *m, char *chat_id)
         /** log_timestamp("加入失败，group number: %d", PUBLIC_GROUP_NUM); */
         log_timestamp("加入失败，public group number: %d, %s", res, tox_err_group_join_to_string(err));
         /** PUBLIC_GROUP_NUM = get_time(); */
-        /** return -1; */
+        return -1;
     } else {
         log_timestamp("已加入public group，group number: %d", res);
         /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
         print_chat_id(m, res);
     }
     /* free(key_bin); */
+    return 0;
 }
 
 int join_public_group(Tox *m)

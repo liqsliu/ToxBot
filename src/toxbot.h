@@ -61,6 +61,7 @@ bool friend_is_master(Tox *m, uint32_t friendnumber);
 
 int rejoin_public_group(Tox *m, Tox_Group_Number gn);
 int join_public_group(Tox *m);
+int join_public_group_by_chat_id(Tox *m, char *chat_id);
 // add by liqsliu
 
 #endif /* TOXBOT_H */

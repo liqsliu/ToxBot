@@ -476,44 +476,48 @@ static void cmd_join(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     } else {
         chat_id = argv[1];
     }
-    log_timestamp("开始加入: %s", chat_id);
-    log_timestamp("%s", (uint8_t *)chat_id);
-    /** char *key_bin = hex_string_to_bin(chat_id); */
-    char key_bin[TOX_GROUP_CHAT_ID_SIZE];
-    hex_string_to_bin2(CHAT_ID2, key_bin);
-    log_timestamp("%s", key_bin);
-    Tox_Err_Group_Join err;
-    /** PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err); */
-    //  https://github.com/TokTok/c-toxcore/blob/81b1e4f6348124784088591c4fe9ab41e273031d/toxcore/tox.h#L3319
-    /* if (PUBLIC_GROUP_NUM != UINT32_MAX) */
-    /* { */
-    /*     if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == true) */
-    /*         log_timestamp("connected, really?"); */
-    /*         if (tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL) == true) */
-    /*             log_timestamp("disconnected"); */
-    /* } */
-    uint32_t r = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err);
-    /** free(key_bin); */
-    if (strcmp(chat_id, CHAT_ID) == 0)
-        PUBLIC_GROUP_NUM = r;
-    if (r == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK)
-    {
-        if (strcmp(chat_id, CHAT_ID) == 0)
-            joined_group = false;
-        log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_join_to_string(err));
-        log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
-        sendme(m, "failed");
-        return;
-    
-    } else {
-        if (strcmp(chat_id, CHAT_ID) == 0)
-            joined_group = true;
-        log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM);
-        log_timestamp("现在群数量: %d", tox_group_get_number_groups(m));
-        /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
+    if (join_public_group_by_chat_id(m, chat_id) == 0) {
         sendme(m, "ok");
+    } else {
+        sendme(m, "failed");
     }
-
+    /* log_timestamp("开始加入: %s", chat_id); */
+    /* log_timestamp("%s", (uint8_t *)chat_id); */
+    /* [>* char *key_bin = hex_string_to_bin(chat_id); <] */
+    /* char key_bin[TOX_GROUP_CHAT_ID_SIZE]; */
+    /* hex_string_to_bin2(CHAT_ID2, key_bin); */
+    /* log_timestamp("%s", key_bin); */
+    /* Tox_Err_Group_Join err; */
+    /* [>* PUBLIC_GROUP_NUM = tox_group_join(m, (uint8_t *)CHAT_ID, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err); <] */
+    /* //  https://github.com/TokTok/c-toxcore/blob/81b1e4f6348124784088591c4fe9ab41e273031d/toxcore/tox.h#L3319 */
+    /* [> if (PUBLIC_GROUP_NUM != UINT32_MAX) <] */
+    /* [> { <] */
+    /* [>     if(tox_group_is_connected(m, PUBLIC_GROUP_NUM, NULL) == true) <] */
+    /* [>         log_timestamp("connected, really?"); <] */
+    /* [>         if (tox_group_disconnect(m, PUBLIC_GROUP_NUM, NULL) == true) <] */
+    /* [>             log_timestamp("disconnected"); <] */
+    /* [> } <] */
+    /* uint32_t r = tox_group_join(m, (uint8_t *)key_bin, (uint8_t *)BOT_NAME, strlen(BOT_NAME), NULL, 0, &err); */
+    /* [>* free(key_bin); <] */
+    /* if (strcmp(chat_id, CHAT_ID) == 0) */
+    /*     PUBLIC_GROUP_NUM = r; */
+    /* if (r == UINT32_MAX || err != TOX_ERR_GROUP_JOIN_OK) */
+    /* { */
+    /*     if (strcmp(chat_id, CHAT_ID) == 0) */
+    /*         joined_group = false; */
+    /*     log_timestamp("加入失败，group number: %d, %s", PUBLIC_GROUP_NUM, tox_err_group_join_to_string(err)); */
+    /*     log_timestamp("现在群数量: %d", tox_group_get_number_groups(m)); */
+    /*     sendme(m, "failed"); */
+    /*     return; */
+    /*  */
+    /* } else { */
+    /*     if (strcmp(chat_id, CHAT_ID) == 0) */
+    /*         joined_group = true; */
+    /*     log_timestamp("已加入public group，group number: %d", PUBLIC_GROUP_NUM); */
+    /*     log_timestamp("现在群数量: %d", tox_group_get_number_groups(m)); */
+    /*     [>* rejoin_public_group(m, PUBLIC_GROUP_NUM); <] */
+    /*     sendme(m, "ok"); */
+    /* } */
 }
 static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
