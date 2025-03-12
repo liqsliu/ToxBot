@@ -106,6 +106,25 @@ bool joined_group=false;
 /* #include <curl/curl.h> */
 uint8_t short_text_length = 64;
 
+
+
+
+void logs2(const char *message, ...)
+{
+    char format[MAX_MESSAGE_SIZE];
+
+    va_list args;
+    va_start(args, message);
+    vsnprintf(format, sizeof(format), message, args);
+    va_end(args);
+
+    char ts[TIMESTAMP_SIZE];
+    strftime(ts, TIMESTAMP_SIZE,"[%H:%M:%S]", get_wall_time());
+
+    printf("%s %s\n", ts, format);
+}
+
+
 /** char *shorten_text(char *text) */
 void logs(const char *text)
 {
@@ -116,9 +135,10 @@ void logs(const char *text)
     char s[short_text_length];
     char s2[short_text_length];
     sprintf(s2, "...%d/%lu", short_text_length, len);
+    printf("s2: %s\n", s2);
     size_t len2 =  short_text_length-1 - strlen(s2);
     char *p=s;
-    for (int i=0; i<len; ++i) {
+    for (int i=0; i<short_text_length; ++i) {
         /** if (strlen(s) < len2) { */
         if (p-s >= len2) {
             break;
@@ -133,6 +153,7 @@ void logs(const char *text)
         ++p;
     }
     *p = '\0';
+    printf("s: %s\n", s);
     /** log_timestamp("s: %s", s); */
     /** sprintf(text, "%s%s", s, s2); */
     /** log_timestamp("text: %s", text); */
@@ -620,6 +641,7 @@ static void cb_conference_message(
     if (idx == 0) {
         log_timestamp("群消息: %s [%s]", title, name);
         logs(text);
+        printf("logs ok\n");
         if (strcmp(name, "bot") != 0)
         {
             char smsg[2048] = SM_SH_PATH;
