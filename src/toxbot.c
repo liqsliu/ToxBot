@@ -1315,18 +1315,18 @@ int main(int argc, char **argv)
         cur_time = get_time();
 // add by liqsliu
 /** get_msg_from_mt(m); */
-    if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
-        last_join = cur_time;
-    else if (joined_group == true)
-    {
-        last_join = cur_time;
-    } else if (cur_time - last_join > 15) {
-        /** PUBLIC_GROUP_NUM == 0; */
-        log_timestamp("join group");
-        join_public_group(m);
-        log_timestamp("joined");
-        last_join = cur_time;
-    }
+        if (joined_group == true)
+        {
+            last_join = cur_time;
+        } else if (PUBLIC_GROUP_NUM == Tox_Bot.last_connected) {
+            last_join = cur_time;
+        } else if (cur_time - last_join > 15) {
+            /** PUBLIC_GROUP_NUM == 0; */
+            log_timestamp("join group");
+            join_public_group(m);
+            log_timestamp("joined");
+            last_join = cur_time;
+        }
 // add by liqsliu
 
     }
