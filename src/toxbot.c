@@ -721,11 +721,13 @@ static void *my_daemon(void *mv)
             if (len1 > 0) {
                 if (strcmp(gmsg, "EOF_FOR_TOX\n") == 0) {
                     log_timestamp("found EOF");
-                    if (len1 > 2) {
+                    if (len1 > 1) {
                         if (gmsgtmp[len1-1] == '\n' && gmsgtmp[len1-2] == '\n') {
-                            gmsgtmp[len1-2] = '\0';
-                            send_msg_from_mt_to_tox(m, gmsgtmp, len1-2);
-                            log_timestamp("send last line: %s", shorten_text(gmsgtmp));
+                            if (len1 != 2) {
+                                gmsgtmp[len1-2] = '\0';
+                                log_timestamp("send last line: %s", shorten_text(gmsgtmp));
+                                send_msg_from_mt_to_tox(m, gmsgtmp, len1-2);
+                            }
                             gmsgtmp[0] = '\0';
                             len1 = 0;
                             continue;
@@ -740,7 +742,7 @@ static void *my_daemon(void *mv)
             }
             strcat(gmsgtmp, gmsg);
             len1 = strlen(gmsgtmp);
-            gmsg[0] = '\0';
+            /** gmsg[0] = '\0'; */
         }
         if (len1 > 0) {
             /** send_msg_from_mt_to_tox(m, gmsg, strlen(gmsg)); */
