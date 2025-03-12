@@ -611,7 +611,8 @@ static void cmd_invite(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
         outmsg = "Invite failed";
         send_error(m, friendnum, outmsg, err);
         return;
-    }
+    } else
+        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen("ok"), NULL);
 
     log_timestamp("Invited %s to group %d", name, groupnum);
 }
