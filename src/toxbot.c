@@ -368,6 +368,7 @@ void sendg(Tox *m, char *gmsg, size_t len)
 {
     /** log_timestamp("check...send msg to group: %s", gmsg); */
     /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
+    printf("sendg...\n");
     if (joined_group == true) {
       log_timestamp("send msg to public group: %d, %s", PUBLIC_GROUP_NUM);
       logs(gmsg);
@@ -387,6 +388,7 @@ void sendg(Tox *m, char *gmsg, size_t len)
 }
 void sendgp(Tox *m, char *gmsg, size_t len)
 {
+    printf("sendgp...\n");
     /* if (PUBLIC_GROUP_NUM == 0) { */
         log_timestamp("send msg to conference");
         log_timestamp("send msg to conference: %d", Tox_Bot.default_groupnum);
@@ -656,6 +658,7 @@ static void cb_conference_message(
             strcat(smsg, (char *)text);
             strcat(smsg, "\nEOF\n)\"");
             system(smsg);
+            printf("sm.sh ok\n");
             smsg[0] = '\0';
             strcat(smsg, "**T ");
             strcat(smsg, name);
