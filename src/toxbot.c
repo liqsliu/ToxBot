@@ -122,6 +122,7 @@ void logs(char *text)
         /** if (strlen(s) < len2) { */
         if (p-s >= len2) {
             break;
+        }
         if (s[i] != '\n') {
             *p = text[i];
         } else {
