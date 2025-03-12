@@ -662,7 +662,8 @@ char *shorten_text(char *text)
     len2 =  short_text_length-1 - strlen(s2);
     char *p=s;
     for (int i=0; i<len; ++i) {
-        if (strlen(s) < len2) {
+        /** if (strlen(s) < len2) { */
+        if (p-s < len2) {
             if (s[i] != '\n') {
                 *p = s[i];
             } else {
