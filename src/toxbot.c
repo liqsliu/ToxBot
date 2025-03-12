@@ -475,7 +475,8 @@ int join_public_group(Tox *m)
     }
     char chat_id[TOX_GROUP_CHAT_ID_SIZE*2+2];
     size_t len=1;
-    while(len > 0)
+    /* while(len > 0) */
+    while(1)
     {
         if (fgets(chat_id, TOX_GROUP_CHAT_ID_SIZE*2+1, fp) == NULL)
         {
@@ -487,6 +488,7 @@ int join_public_group(Tox *m)
                 log_timestamp("read chat_id: %s", chat_id);
             }
         } else {
+            log_timestamp("got EOF");
             break;
         }
         if (strcmp(chat_id, CHAT_ID) == 0) {
@@ -1369,9 +1371,7 @@ int main(int argc, char **argv)
             last_join = cur_time;
         } else if (cur_time - last_join > 15) {
             /** PUBLIC_GROUP_NUM == 0; */
-            log_timestamp("join group");
             join_public_group(m);
-            log_timestamp("joined");
             last_join = cur_time;
         }
 // add by liqsliu
