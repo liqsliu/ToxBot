@@ -727,6 +727,8 @@ static void *my_daemon(void *mv)
                                 gmsgtmp[len1-2] = '\0';
                                 log_timestamp("send last line: %s", shorten_text(gmsgtmp));
                                 send_msg_from_mt_to_tox(m, gmsgtmp, len1-2);
+                            } else {
+                                log_timestamp("ignore empty msg");
                             }
                             gmsgtmp[0] = '\0';
                             len1 = 0;
