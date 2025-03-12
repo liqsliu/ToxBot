@@ -689,19 +689,19 @@ static void *my_daemon(void *mv)
             log_timestamp("got msg: %s", gmsg);
             len = strlen(gmsg);
             if (len1 > 0) {
-                /** if (strcmp(gmsg, "EOF_FOR_TOX\n") == 0) { */
-                /**     log_timestamp("found EOF"); */
-                /**     if (len1 > 2) { */
-                /**         if (gmsgtmp[len1-1] == '\n' && gmsgtmp[len1-2] == '\n') { */
-                /**             gmsgtmp[len1-2] = '\0'; */
-                /**             send_msg_from_mt_to_tox(m, gmsgtmp, len1-2); */
-                /**             log_timestamp("send last line: %s", gmsgtmp); */
-                /**             gmsgtmp[0] = '\0'; */
-                /**             len1 = 0; */
-                /**             continue; */
-                /**         } */
-                /**     } */
-                /** } */
+                if (strcmp(gmsg, "EOF_FOR_TOX\n") == 0) {
+                    log_timestamp("found EOF");
+                    if (len1 > 2) {
+                        if (gmsgtmp[len1-1] == '\n' && gmsgtmp[len1-2] == '\n') {
+                            gmsgtmp[len1-2] = '\0';
+                            send_msg_from_mt_to_tox(m, gmsgtmp, len1-2);
+                            log_timestamp("send last line: %s", gmsgtmp);
+                            gmsgtmp[0] = '\0';
+                            len1 = 0;
+                            continue;
+                        }
+                    }
+                }
                 if (len1+len > TOX_MAX_MESSAGE_LENGTH) {
                     send_msg_from_mt_to_tox(m, gmsgtmp, len1);
                     gmsgtmp[0] = '\0';
@@ -715,6 +715,7 @@ static void *my_daemon(void *mv)
         if (len1 > 0) {
             /** send_msg_from_mt_to_tox(m, gmsg, strlen(gmsg)); */
             send_msg_from_mt_to_tox(m, gmsgtmp, len1);
+        }
         pclose(fd);
         log_timestamp("shell终止");
         sleep(1);
