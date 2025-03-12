@@ -307,33 +307,32 @@ void sendg(Tox *m, char *gmsg, size_t len)
     /** log_timestamp("check...send msg to group: %s", gmsg); */
     /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
     if (joined_group == true) {
-      log_timestamp("send msg to public group: %s", gmsg);
+      log_timestamp("send msg to public group: %d, %s", PUBLIC_GROUP_NUM,  shorten_text(gmsg));
       Tox_Err_Group_Send_Message err2;
       /** if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2) != true) */
       tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2);
       if (err2 != TOX_ERR_GROUP_SEND_MESSAGE_OK) {
-        log_timestamp("failed to send msg to group: %s: %s", tox_err_group_send_message_to_string(err2), gmsg);
+        log_timestamp("failed to send msg to group: %s: %s", tox_err_group_send_message_to_string(err2), shorten_text(gmsg));
        /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
        /** PUBLIC_GROUP_NUM = UINT32_MAX; */
         joined_group = false;
       } else {
-        log_timestamp("sent to group: %s", gmsg);
+        log_timestamp("sent to group: %s", shorten_text(gmsg));
       }
 
     }
 }
 void sendgp(Tox *m, char *gmsg, size_t len)
 {
-    if (PUBLIC_GROUP_NUM == 0) {
-        log_timestamp("send msg to conference: %s", gmsg);
-        TOX_ERR_CONFERENCE_SEND_MESSAGE err;
-        //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
-        tox_conference_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
-        if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK) {
-           log_timestamp("failed send conference msg: %s: %s", tox_err_conference_send_message_to_string(err), gmsg);
-        } else {
-            log_timestamp("sent: %s", gmsg);
-        }
+    /** if (PUBLIC_GROUP_NUM == 0) { */
+    log_timestamp("send msg to conference: %d: %s", Tox_Bot.default_groupnum, shorten_text(gmsg));
+    TOX_ERR_CONFERENCE_SEND_MESSAGE err;
+    //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
+    tox_conference_send_message(m, Tox_Bot.default_groupnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
+    if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK) {
+       log_timestamp("failed send conference msg: %s: %s", tox_err_conference_send_message_to_string(err), shorten_text(gmsg));
+    } else {
+        log_timestamp("sent to conference: %s", shorten_text(gmsg));
     }
 }
 static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
@@ -719,13 +718,13 @@ static void *my_daemon(void *mv)
                     log_timestamp("found EOF");
                     if (len1 > 1) {
                         if (gmsgtmp[len1-1] == '\n' && gmsgtmp[len1-2] == '\n') {
-                            if (len1 != 2) {
-                                gmsgtmp[len1-2] = '\0';
-                                log_timestamp("send last line: %s", shorten_text(gmsgtmp));
-                                send_msg_from_mt_to_tox(m, gmsgtmp, len1-2);
-                            } else {
-                                log_timestamp("ignore empty msg");
-                            }
+                            gmsgtmp[len1-2] = '\0';
+                            log_timestamp("send last line: %s", shorten_text(gmsgtmp));
+                            send_msg_from_mt_to_tox(m, gmsgtmp, len1-2);
+                            /** if (len1 != 2) { */
+                            /** } else { */
+                            /**     log_timestamp("ignore empty msg"); */
+                            /** } */
                             gmsgtmp[0] = '\0';
                             len1 = 0;
                             continue;
