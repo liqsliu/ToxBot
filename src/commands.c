@@ -392,7 +392,7 @@ static void cmd_save(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
         tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         outmsg[0] = '\0';
         int i, j;
-        char chat_ids[TOX_GROUP_CHAT_ID_SIZE*MAX_GROUPS*2+MAX_GROUPS]={0};
+        char chat_ids[TOX_GROUP_CHAT_ID_SIZE*MAX_GROUPS*2+MAX_GROUPS+1]={0};
         for (i=0; i<n; ++i)
         {
             sprintf(outmsg+strlen(outmsg), "%d", i);
@@ -419,6 +419,8 @@ static void cmd_save(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
             }
 
         }
+        chat_ids[strlen(chat_ids)+1] = '\0';
+        chat_ids[strlen(chat_ids)] = '\n';
         save_chat_ids(chat_ids);
         tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "ok", strlen(outmsg), NULL);
     }

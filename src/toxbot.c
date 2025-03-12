@@ -480,18 +480,21 @@ int join_public_group(Tox *m)
     {
         if (fgets(chat_id, TOX_GROUP_CHAT_ID_SIZE*2+1, fp) == NULL)
         {
+            log_timestamp("got EOF");
+            break;
+        } else {
             len = strlen(chat_id);
             if (chat_id[len-1] == '\n') {
                 chat_id[len-1] = '\0';
                 log_timestamp("deleted \\n: %s", chat_id);
             } else {
-                log_timestamp("read chat_id: %s", chat_id);
+                log_timestamp("gets chat_id: %s", chat_id);
             }
-        } else {
-            log_timestamp("got EOF");
-            break;
         }
         if (strcmp(chat_id, CHAT_ID) == 0) {
+            continue;
+        }
+        if (strlen(chat_id) == 0) {
             continue;
         }
         join_public_group_by_chat_id(m, chat_id);
