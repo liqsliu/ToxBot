@@ -119,16 +119,15 @@ char *shorten_text(char *text)
     char *p=s;
     for (int i=0; i<len; ++i) {
         /** if (strlen(s) < len2) { */
-        if (p-s < len2) {
-            if (s[i] != '\n') {
-                *p = text[i];
-            } else {
-                *p = '\\';
-                ++p;
-                *p = 'n';
-            }
-        } else
+        if (p-s >= len2) {
             break;
+        if (s[i] != '\n') {
+            *p = text[i];
+        } else {
+            *p = '\\';
+            ++p;
+            *p = 'n';
+        }
         ++p;
     }
     *p = '\0';
