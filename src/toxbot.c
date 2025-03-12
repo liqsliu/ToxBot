@@ -648,14 +648,14 @@ uint8_t short_text_length = 64;
 
 char *shorten_text(char *text)
 {
-    size_t len = strlen(text), len2;
-    if (len2 < short_text_length) {
+    size_t len = strlen(text);
+    if (len < short_text_length) {
         return text;
     }
     char s[short_text_length];
     char s2[short_text_length];
     sprintf(s2, "...%d/%d", short_text_length, len);
-    len2 =  short_text_length-1 - strlen(s2);
+    size_t len2 =  short_text_length-1 - strlen(s2);
     char *p=s;
     for (int i=0; i<len; ++i) {
         /** if (strlen(s) < len2) { */
