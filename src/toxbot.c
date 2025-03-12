@@ -107,12 +107,11 @@ bool joined_group=false;
 uint8_t short_text_length = 64;
 
 /** char *shorten_text(char *text) */
-void logs(char *text)
+void logs(const char *text)
 {
     size_t len = strlen(text);
     if (len < short_text_length) {
         return;
-        return text;
     }
     char s[short_text_length];
     char s2[short_text_length];
