@@ -672,7 +672,6 @@ char *shorten_text(char *text)
     }
     sprintf(text, "%s%s", s, s2);
     return text;
-
 }
 
 
