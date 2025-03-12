@@ -575,13 +575,13 @@ static void cb_conference_message(
     tox_conference_peer_get_name(m, conference_number, peer_number, (uint8_t *) name, NULL);
     size_t len = tox_conference_peer_get_name_size(m, conference_number, peer_number, NULL);
     name[len] = '\0';
-    log_timestamp("name: %s", name);
+    /* log_timestamp("name: %s", name); */
 
     char title[TOX_MAX_NAME_LENGTH];
     tox_conference_get_title(m, conference_number, (uint8_t *) title, NULL);
     len = tox_conference_get_title_size(m, conference_number, NULL);
     title[len] = '\0';
-    log_timestamp("title: %s", title);
+    /* log_timestamp("title: %s", title); */
 
     if (strcmp(name, BOT_NAME) == 0) {
         log_timestamp("忽略bot自己发的消息: %s [%s]: %s", title, name, text);
@@ -609,7 +609,7 @@ static void cb_conference_message(
             sendg(m, smsg, strlen(smsg));
         }
     } else {
-        log_timestamp("忽略来自其他群的消息: %d %s [%s]: %s", idx, title, name, text);
+        logs("忽略来自其他群的消息: %d %s [%s]: %s", idx, title, name, text);
     }
 }
 static void cb_group_message(
@@ -619,7 +619,7 @@ static void cb_group_message(
     char text[TOX_MAX_MESSAGE_LENGTH];
     message_length = copy_tox_str(text, sizeof(text), (const char *) message, message_length);
     text[message_length] = '\0';
-    log_timestamp("group msg: %d %d %s", group_number, peer_id, text);
+    logs("group msg: %d %d %s", group_number, peer_id, text);
     char name[TOX_MAX_NAME_LENGTH];
     tox_group_peer_get_name(m, group_number, peer_id, (uint8_t *) name, NULL);
     size_t len = tox_group_peer_get_name_size(m, group_number, peer_id, NULL);
@@ -651,7 +651,7 @@ static void cb_group_message(
             sendgp(m, smsg, strlen(smsg));
         }
     } else {
-        log_timestamp("忽略来自其他ngc群的消息: %d %s [%s]: %s", group_number, title, name, text);
+        logs("忽略来自其他ngc群的消息: %d %s [%s]: %s", group_number, title, name, text);
     }
 }
 
@@ -669,6 +669,7 @@ static void *my_daemon(void *mv)
     char gmsg[TOX_MAX_MESSAGE_LENGTH];
     char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
     size_t len1, len;
+    log_timestamp("my daemon is running...");
     while(1)
     {
         /** fd_gm = popen("/run/user/1000/bot/gm_stream.sh", "r"); */
@@ -685,7 +686,6 @@ static void *my_daemon(void *mv)
         len = strlen(gmsg);
         while(1)
         {
-            log_timestamp("my daemon is running...");
             if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd) == NULL)
             {
                 log_timestamp("got msg:");
