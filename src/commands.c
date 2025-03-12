@@ -373,6 +373,58 @@ on_error:
     log_error_timestamp(-1, "Warning: save failed");
     return -1;
 }
+
+static void cmd_save(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+{
+    int n = tox_group_get_number_groups(m);
+    log_timestamp("现在群数量: %d", n);
+    if (n == 0)
+    {
+        /* sendme(m, "no connected group"); */
+        const char * outmsg="no connected group";
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    }
+    else
+    {
+        char outmsg[TOX_MAX_MESSAGE_LENGTH]="found: ";
+        sprintf(outmsg+strlen(outmsg), "%d", n);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        outmsg[0] = '\0';
+        int i, j;
+        char chat_ids[TOX_GROUP_CHAT_ID_SIZE*MAX_GROUPS*2+MAX_GROUPS]={0};
+        for (i=0; i<n; ++i)
+        {
+            sprintf(outmsg+strlen(outmsg), "%d", i);
+
+            char public_key[TOX_PUBLIC_KEY_SIZE];
+            bool res = tox_group_get_chat_id(m, i, (uint8_t *)public_key, NULL);
+            if (res != true) {
+                sprintf(outmsg+strlen(outmsg), "无法获取chat_id: %d", i);
+                tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+                outmsg[0] = '\0';
+                break;
+            }
+            if (strlen(chat_ids) != 0)
+                chat_ids[strlen(chat_ids)] = '\n';
+            for (j=0; j<sizeof(public_key); j++)
+            {
+                /* printf("%hhX", public_key[i]); */
+                sprintf(chat_ids+strlen(chat_ids), "%hhX", public_key[j]);
+            }
+            if (i >= MAX_GROUPS) {
+                sprintf(outmsg+strlen(outmsg), "群数量已达到上限: %d/%d", MAX_GROUPS, n);
+                tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+                break;
+            }
+
+        }
+        save_chat_ids(chat_ids);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "ok", strlen(outmsg), NULL);
+    }
+
+}
+
+
 static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     int n = tox_group_get_number_groups(m);
@@ -393,7 +445,6 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
         char title[TOX_MAX_NAME_LENGTH];
         int len;
         int i, j;
-        char chat_ids[TOX_GROUP_CHAT_ID_SIZE*MAX_GROUPS*2+MAX_GROUPS]={0};
         for (i=0; i<n; ++i)
         {
             sprintf(outmsg+strlen(outmsg), "%d", i);
@@ -413,13 +464,10 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
                 outmsg[0] = '\0';
                 break;
             }
-            if (strlen(chat_ids) != 0)
-                chat_ids[strlen(chat_ids)] = '\n';
             for (j=0; j<sizeof(public_key); j++)
             {
                 /* printf("%hhX", public_key[i]); */
                 sprintf(outmsg+strlen(outmsg), "%hhX", public_key[j]);
-                sprintf(chat_ids+strlen(chat_ids), "%hhX", public_key[j]);
             }
             tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
             outmsg[0] = '\0';
@@ -430,7 +478,6 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
             }
 
         }
-        save_chat_ids(chat_ids);
     }
 }
 static void cmd_rejoin(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
@@ -1208,6 +1255,7 @@ struct CF commands[] = {
     { "title",            cmd_title_set, true     },
     { "init",            cmd_init     },
     { "join",            cmd_join, true     },
+    { "save",            cmd_save, true     },
     { "rejoin",            cmd_rejoin, true     },
     { "exit",            cmd_exit, true     },
     { "list",            cmd_list     },
