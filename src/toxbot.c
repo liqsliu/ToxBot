@@ -396,7 +396,7 @@ int join_public_group_by_chat_id(Tox *m, char *chat_id)
 {
     if (strlen(chat_id) < 16) {
         log_timestamp("wrong chat_id: %s", chat_id);
-        return;
+        return -1;
     }
     if (strcmp(chat_id, CHAT_ID) == 0) {
         joined_group = true;
