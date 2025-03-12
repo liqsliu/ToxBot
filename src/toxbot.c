@@ -132,9 +132,9 @@ char *shorten_text(char *text)
         ++p;
     }
     *p = '\0';
-    log_timestamp("s: %s", s)
+    log_timestamp("s: %s", s);
     sprintf(text, "%s%s", s, s2);
-    log_timestamp("text: %s", text)
+    log_timestamp("text: %s", text);
     return text;
 }
 
