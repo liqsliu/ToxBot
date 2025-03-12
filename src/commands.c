@@ -40,11 +40,11 @@ extern struct Tox_Bot Tox_Bot;
 
 /** static struct { */
 /**     const char *name; */
-/**     void (*func)(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH]); */
+/**     void (*func)(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH]); */
 /** } commands[] = { */
 static struct CF {
     const char *name;
-    void (*func)(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH]);
+    void (*func)(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH]);
     bool admin_only;
 };
 // add by liqsliu
@@ -55,31 +55,31 @@ extern bool joined_group;
 
 // add by liqsliu
 
-static void authent_failed(Tox *m, uint32_t friendnum)
+static void authent_failed(Tox *m, uint32_t friendnumber)
 {
     const char *outmsg = "You do not have permission to use this command.";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 }
 
-static void send_error(Tox *m, uint32_t friendnum, const char *message, int err)
+static void send_error(Tox *m, uint32_t friendnumber, const char *message, int err)
 {
     char outmsg[TOX_MAX_MESSAGE_LENGTH];
     snprintf(outmsg, sizeof(outmsg), "%s (error %d)", message, err);
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 }
 
-static void cmd_default(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_default(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 1) {
         outmsg = "Error: Room number required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -87,7 +87,7 @@ static void cmd_default(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_C
 
     if ((groupnum == 0 && strcmp(argv[1], "0")) || groupnum < 0) {
         outmsg = "Error: Invalid room number";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -95,34 +95,34 @@ static void cmd_default(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_C
 
     char msg[MAX_COMMAND_LENGTH];
     snprintf(msg, sizeof(msg), "Default room number set to %d", groupnum);
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), NULL);
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t len = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t len = tox_friend_get_name_size(m, friendnumber, NULL);
     name[len] = '\0';
 
     log_timestamp("Default room number set to %d by %s", groupnum, name);
 }
 
-static void cmd_gmessage(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_gmessage(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 1) {
         outmsg = "Error: Group number required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     if (argc < 2) {
         outmsg = "Error: Message required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -130,19 +130,19 @@ static void cmd_gmessage(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_
 
     if (groupnum == 0 && strcmp(argv[1], "0")) {
         outmsg = "Error: Invalid group number";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     if (group_index(groupnum) == -1) {
         outmsg = "Error: Invalid group number";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     if (argv[2][0] != '\"') {
         outmsg = "Error: Message must be enclosed in quotes";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -156,35 +156,35 @@ static void cmd_gmessage(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_
 
     if (!tox_conference_send_message(m, groupnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), &err)) {
         outmsg = "Error: Failed to send message.";
-        send_error(m, friendnum, outmsg, err);
+        send_error(m, friendnumber, outmsg, err);
         return;
     }
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t nlen = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t nlen = tox_friend_get_name_size(m, friendnumber, NULL);
     name[nlen] = '\0';
 
     outmsg = "Message sent.";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     log_timestamp("<%s> message to group %d: %s", name, groupnum, msg);
 }
 
-static void cmd_group(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_group(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
     if (argc < 1) {
         outmsg = "Please specify the group type: audio or text";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     uint8_t type = TOX_CONFERENCE_TYPE_AV ? !strcasecmp(argv[1], "audio") : TOX_CONFERENCE_TYPE_TEXT;
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t len = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t len = tox_friend_get_name_size(m, friendnumber, NULL);
     name[len] = '\0';
 
     int groupnum = -1;
@@ -196,7 +196,7 @@ static void cmd_group(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
         if (err != TOX_ERR_CONFERENCE_NEW_OK) {
             log_error_timestamp(err, "Group chat creation by %s failed to initialize", name);
             outmsg = "Group chat instance failed to initialize.";
-            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
             return;
         }
     } else if (type == TOX_CONFERENCE_TYPE_AV) {
@@ -205,7 +205,7 @@ static void cmd_group(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
         if (groupnum == -1) {
             log_error_timestamp(-1, "Group chat creation by %s failed to initialize", name);
             outmsg = "Group chat instance failed to initialize.";
-            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
             return;
         }
     }
@@ -215,14 +215,14 @@ static void cmd_group(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
     if (password && strlen(argv[2]) >= MAX_PASSWORD_SIZE) {
         log_error_timestamp(-1, "Group chat creation by %s failed: Password too long", name);
         outmsg = "Group chat instance failed to initialize: Password too long";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     if (group_add(groupnum, type, password) == -1) {
         log_error_timestamp(-1, "Group chat creation by %s failed", name);
         outmsg = "Group chat creation failed";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         tox_conference_delete(m, groupnum, NULL);
         return;
     }
@@ -232,7 +232,7 @@ static void cmd_group(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
 
     char msg[MAX_COMMAND_LENGTH];
     snprintf(msg, sizeof(msg), "Group chat %d created%s", groupnum, pw);
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), NULL);
 }
 
 
@@ -245,7 +245,7 @@ static void sendme(Tox *m, const char *outmsg)
     }
 }
 
-static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_help(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     log_timestamp("argc: %d", argc+1);
     printf("argv:");
@@ -259,23 +259,23 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
 
     if (argc == 0) {
         outmsg = ".info : Print my current status and list active group chats";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
         outmsg = ".id : Print my Tox ID";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
         outmsg = ".invite : Request invite to default group chat";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
         outmsg = ".invite <n> <p> : Request invite to group chat n (with password p if protected)";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
         outmsg = ".group <type> <pass> : Creates a new groupchat with type: text | audio (optional password)";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
-        if (friend_is_master(m, friendnum)) {
+        if (friend_is_master(m, friendnumber)) {
             outmsg = "For a list of master commands see the commands.txt file";
-            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         }
         return;
     }
@@ -288,7 +288,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             if (file_exists(path) != true)
             {
                 outmsg = "not found commands.txt file";
-                tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+                tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
                 return;
             }
             fp = fopen(path, "r");
@@ -302,7 +302,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             while (fgets(line, TOX_MAX_MESSAGE_LENGTH, fp)) {
                 /** log_timestamp("got: %s", line); */
                 outmsg = line;
-                tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+                tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
                 line[0] = '\0';
             }
             fclose(fp);
@@ -310,7 +310,7 @@ static void cmd_help(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
         }
     }
     outmsg = "send: .help";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     return;
 }
 int String2Int(char *str)//字符串转数字
@@ -361,7 +361,7 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     {
         char outmsg[TOX_MAX_MESSAGE_LENGTH]="found: ";
         sprintf(outmsg+strlen(outmsg), "%d", n);
-        sendme(m, outmsg);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         outmsg[0] = '\0';
 
         char title[TOX_MAX_NAME_LENGTH];
@@ -381,7 +381,8 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
             bool res = tox_group_get_chat_id(m, i, (uint8_t *)public_key, NULL);
             if (res != true) {
                 sprintf(outmsg+strlen(outmsg), "无法获取chat_id: %d", i);
-                sendme(m, outmsg);
+                /* sendme(m, outmsg); */
+                tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
                 outmsg[0] = '\0';
                 break;
             }
@@ -390,7 +391,7 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
                 /* printf("%hhX", public_key[i]); */
                 sprintf(outmsg+strlen(outmsg), "%hhX", public_key[j]);
             }
-            sendme(m, outmsg);
+            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
             outmsg[0] = '\0';
         }
     }
@@ -498,7 +499,7 @@ static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 }
 
-static void cmd_id(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_id(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     char outmsg[TOX_ADDRESS_SIZE * 2 + 1];
     char address[TOX_ADDRESS_SIZE];
@@ -511,10 +512,10 @@ static void cmd_id(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAN
     }
 
     outmsg[TOX_ADDRESS_SIZE * 2] = '\0';
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 }
 
-static void cmd_info(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_info(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     char outmsg[MAX_COMMAND_LENGTH];
     char timestr[64];
@@ -522,21 +523,21 @@ static void cmd_info(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
     time_t curtime = get_time();
     get_elapsed_time_str(timestr, sizeof(timestr), curtime - Tox_Bot.start_time);
     snprintf(outmsg, sizeof(outmsg), "Uptime: %s", timestr);
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
     uint32_t numfriends = tox_self_get_friend_list_size(m);
     snprintf(outmsg, sizeof(outmsg), "Friends: %d (%d online)", numfriends, Tox_Bot.num_online_friends);
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
     snprintf(outmsg, sizeof(outmsg), "Inactive friends are purged after %"PRIu64" days",
              Tox_Bot.inactive_limit / SECONDS_IN_DAY);
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 
     /* List active group chats and number of peers in each */
     size_t num_chats = tox_conference_get_chatlist_size(m);
 
     if (num_chats == 0) {
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "No active groupchats",
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "No active groupchats",
                                 strlen("No active groupchats"), NULL);
         return;
     }
@@ -557,12 +558,12 @@ static void cmd_info(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
             const char *type = tox_conference_get_type(m, groupnum, NULL) == TOX_CONFERENCE_TYPE_AV ? "Audio" : "Text";
             snprintf(outmsg, sizeof(outmsg), "Group %d | %s | peers: %d | Title: %s", groupnum, type,
                      num_peers, title);
-            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         }
     }
 }
 
-static void cmd_invite(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_invite(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
     int groupnum = Tox_Bot.default_groupnum;
@@ -572,7 +573,7 @@ static void cmd_invite(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
 
         if (groupnum == 0 && strcmp(argv[1], "0")) {
             outmsg = "Error: Invalid group number";
-            tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+            tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
             return;
         }
     }
@@ -581,15 +582,15 @@ static void cmd_invite(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
 
     if (idx == -1) {
         outmsg = "Group doesn't exist.";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     int has_pass = Tox_Bot.g_chats[idx].has_pass;
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t len = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t len = tox_friend_get_name_size(m, friendnumber, NULL);
     name[len] = '\0';
 
     const char *passwd = NULL;
@@ -601,35 +602,35 @@ static void cmd_invite(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
     if (has_pass && (!passwd || strcmp(argv[2], Tox_Bot.g_chats[idx].password) != 0)) {
         log_error_timestamp(-1, "Failed to invite %s to group %d (invalid password)", name, groupnum);
         outmsg = "Invalid password.";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     TOX_ERR_CONFERENCE_INVITE err;
 
-    if (!tox_conference_invite(m, friendnum, groupnum, &err)) {
+    if (!tox_conference_invite(m, friendnumber, groupnum, &err)) {
         log_error_timestamp(err, "Failed to invite %s to group %d", name, groupnum);
         outmsg = "Invite failed";
-        send_error(m, friendnum, outmsg, err);
+        send_error(m, friendnumber, outmsg, err);
         return;
     } else
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen("ok"), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen("ok"), NULL);
 
     log_timestamp("Invited %s to group %d", name, groupnum);
 }
 
-static void cmd_leave(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_leave(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 1) {
         outmsg = "Error: Group number required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -637,42 +638,42 @@ static void cmd_leave(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
 
     if (groupnum == 0 && strcmp(argv[1], "0")) {
         outmsg = "Error: Invalid group number";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     if (!tox_conference_delete(m, groupnum, NULL)) {
         outmsg = "Error: Invalid group number";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     char msg[MAX_COMMAND_LENGTH];
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t len = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t len = tox_friend_get_name_size(m, friendnumber, NULL);
     name[len] = '\0';
 
     group_leave(groupnum);
 
     log_timestamp("Left group %d (%s)", groupnum, name);
     snprintf(msg, sizeof(msg), "Left group %d", groupnum);
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), NULL);
 }
 
-static void cmd_master(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_master(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 1) {
         outmsg = "Error: Tox ID required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -680,7 +681,7 @@ static void cmd_master(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
 
     if (strlen(id) != TOX_ADDRESS_SIZE * 2) {
         outmsg = "Error: Invalid Tox ID";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -688,7 +689,7 @@ static void cmd_master(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
 
     if (fp == NULL) {
         outmsg = "Error: could not find masterkeys file";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -696,32 +697,32 @@ static void cmd_master(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
     fclose(fp);
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t len = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t len = tox_friend_get_name_size(m, friendnumber, NULL);
     name[len] = '\0';
 
     log_timestamp("%s added master: %s", name, id);
     outmsg = "ID added to masterkeys list";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
 }
 
-static void cmd_name(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_name(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 1) {
         outmsg = "Error: Name required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
     if (strlen(argv[1]) > TOX_MAX_NAME_LENGTH-1) {
         outmsg = "Error: Name is too long";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -743,26 +744,26 @@ static void cmd_name(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMM
     tox_self_set_name(m, (uint8_t *) name, (uint16_t) len, NULL);
 
     char m_name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) m_name, NULL);
-    size_t nlen = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) m_name, NULL);
+    size_t nlen = tox_friend_get_name_size(m, friendnumber, NULL);
     m_name[nlen] = '\0';
 
     log_timestamp("%s set name to %s", m_name, name);
     save_data(m, DATA_FILE);
 }
 
-static void cmd_passwd(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_passwd(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 1) {
         outmsg = "Error: group number required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -770,7 +771,7 @@ static void cmd_passwd(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
 
     if (groupnum == 0 && strcmp(argv[1], "0")) {
         outmsg = "Error: Invalid group number";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -778,13 +779,13 @@ static void cmd_passwd(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
 
     if (idx == -1) {
         outmsg = "Error: Invalid group number";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t nlen = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t nlen = tox_friend_get_name_size(m, friendnumber, NULL);
     name[nlen] = '\0';
 
 
@@ -794,14 +795,14 @@ static void cmd_passwd(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
         memset(Tox_Bot.g_chats[idx].password, 0, MAX_PASSWORD_SIZE);
 
         outmsg = "No password set";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         log_timestamp("No password set for group %d by %s", groupnum, name);
         return;
     }
 
     if (strlen(argv[2]) >= MAX_PASSWORD_SIZE) {
         outmsg = "Password too long";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -809,23 +810,23 @@ static void cmd_passwd(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
     snprintf(Tox_Bot.g_chats[idx].password, sizeof(Tox_Bot.g_chats[idx].password), "%s", argv[2]);
 
     outmsg = "Password set";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     log_timestamp("Password for group %d set by %s", groupnum, name);
 
 }
 
-static void cmd_purge(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_purge(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 1) {
         outmsg = "Error: number > 0 required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -833,7 +834,7 @@ static void cmd_purge(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
 
     if (days <= 0) {
         outmsg = "Error: number > 0 required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -841,29 +842,29 @@ static void cmd_purge(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COM
     Tox_Bot.inactive_limit = seconds;
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t nlen = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t nlen = tox_friend_get_name_size(m, friendnumber, NULL);
     name[nlen] = '\0';
 
     char msg[MAX_COMMAND_LENGTH];
     snprintf(msg, sizeof(msg), "Purge time set to %"PRIu64" days", days);
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) msg, strlen(msg), NULL);
 
     log_timestamp("Purge time set to %"PRIu64" days by %s", days, name);
 }
 
-static void cmd_status(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_status(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 1) {
         outmsg = "Error: status required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -878,39 +879,39 @@ static void cmd_status(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_CO
         type = TOX_USER_STATUS_BUSY;
     } else {
         outmsg = "Invalid status. Valid statuses are: online, busy and away.";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     tox_self_set_status(m, type);
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t nlen = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t nlen = tox_friend_get_name_size(m, friendnumber, NULL);
     name[nlen] = '\0';
 
     log_timestamp("%s set status to %s", name, status);
     save_data(m, DATA_FILE);
 }
 
-static void cmd_statusmessage(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_statusmessage(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 1) {
         outmsg = "Error: message required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     if (argv[1][0] != '\"') {
         outmsg = "Error: message must be enclosed in quotes";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -923,32 +924,32 @@ static void cmd_statusmessage(Tox *m, uint32_t friendnum, int argc, char (*argv)
     tox_self_set_status_message(m, (uint8_t *) msg, len, NULL);
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t nlen = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t nlen = tox_friend_get_name_size(m, friendnumber, NULL);
     name[nlen] = '\0';
 
     log_timestamp("%s set status message to \"%s\"", name, msg);
     save_data(m, DATA_FILE);
 }
 
-static void cmd_title_set(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH])
+static void cmd_title_set(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     const char *outmsg = NULL;
 
-    if (!friend_is_master(m, friendnum)) {
-        authent_failed(m, friendnum);
+    if (!friend_is_master(m, friendnumber)) {
+        authent_failed(m, friendnumber);
         return;
     }
 
     if (argc < 2) {
         outmsg = "Error: Two arguments are required";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
     if (argv[2][0] != '\"') {
         outmsg = "Error: title must be enclosed in quotes";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -956,7 +957,7 @@ static void cmd_title_set(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX
 
     if (groupnum == 0 && strcmp(argv[1], "0")) {
         outmsg = "Error: Invalid group number";
-        tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         return;
     }
 
@@ -967,8 +968,8 @@ static void cmd_title_set(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX
     title[len] = '\0';
 
     char name[TOX_MAX_NAME_LENGTH];
-    tox_friend_get_name(m, friendnum, (uint8_t *) name, NULL);
-    size_t nlen = tox_friend_get_name_size(m, friendnum, NULL);
+    tox_friend_get_name(m, friendnumber, (uint8_t *) name, NULL);
+    size_t nlen = tox_friend_get_name_size(m, friendnumber, NULL);
     name[nlen] = '\0';
 
     TOX_ERR_CONFERENCE_TITLE err;
@@ -976,7 +977,7 @@ static void cmd_title_set(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX
     if (!tox_conference_set_title(m, groupnum, (uint8_t *) title, len, &err)) {
         log_error_timestamp(err, "%s failed to set the title '%s' for group %d", name, title, groupnum);
         outmsg = "Failed to set title. This may be caused by an invalid group number or an empty room";
-        send_error(m, friendnum, outmsg, err);
+        send_error(m, friendnumber, outmsg, err);
         return;
     }
 
@@ -985,7 +986,7 @@ static void cmd_title_set(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX
     Tox_Bot.g_chats[idx].title_len = len;
 
     outmsg = "Group title set";
-    tox_friend_send_message(m, friendnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     log_timestamp("%s set group %d title to %s", name, groupnum, title);
 }
 
@@ -1228,7 +1229,7 @@ void commands_init(void)
     }
     last_command = commands[commands_len/2];
 }
-static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX_COMMAND_LENGTH])
+static int do_command(Tox *m, uint32_t friendnumber, int num_args, char (*args)[MAX_COMMAND_LENGTH])
 {
     // static 可以做到保存上次查找到的位置，下次查找直接从该位置检查。如果命令相同，可以节省查找时间
     static int i=commands_len/2;
@@ -1243,17 +1244,17 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
             /* log_timestamp("hit cmd: %d %s", i, commands[i].name); */
             /* if (commands[i].admin_only == true) { */
             if (last_command.admin_only == true) {
-                if (!friend_is_master(m, friendnum)) {
-                    authent_failed(m, friendnum);
-                    log_timestamp("已忽略命令: %d: %s", friendnum, args[0]);
+                if (!friend_is_master(m, friendnumber)) {
+                    authent_failed(m, friendnumber);
+                    log_timestamp("已忽略命令: %d: %s", friendnumber, args[0]);
                     /* return -2; */
                     return 0;
                 }
                 /* if (MY_NUM == UINT32_MAX) { */
-                MY_NUM = friendnum;
+                MY_NUM = friendnumber;
             }
-            /* (commands[i].func)(m, friendnum, num_args - 1, args); */
-            (last_command.func)(m, friendnum, num_args - 1, args);
+            /* (commands[i].func)(m, friendnumber, num_args - 1, args); */
+            (last_command.func)(m, friendnumber, num_args - 1, args);
             return 0;
             
         }
@@ -1269,7 +1270,7 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
     log_timestamp("not found: %s, %d %d", args[0], left, right);
     /** for (size_t i = 0; commands[i].name; ++i) { */
     /**     if (strcmp(args[0], commands[i].name) == 0) { */
-    /**         (commands[i].func)(m, friendnum, num_args - 1, args); */
+    /**         (commands[i].func)(m, friendnumber, num_args - 1, args); */
     /**         return 0; */
     /**     } */
     /** } */
@@ -1278,7 +1279,7 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
 }
 
 
-int execute(Tox *m, uint32_t friendnum, const char *input, int length)
+int execute(Tox *m, uint32_t friendnumber, const char *input, int length)
 {
     if (length >= MAX_COMMAND_LENGTH) {
         return -1;
@@ -1294,7 +1295,7 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
             return -1;
         }
         log_timestamp("run cmd: %s", input);
-        return do_command(m, friendnum, num_args, args);
+        return do_command(m, friendnumber, num_args, args);
     } else if (strcmp(input, "invite") == 0) {
         /** char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]; */
         /** int num_args = parse_command(input, args); */
@@ -1306,7 +1307,7 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
             "invite",
         };
         int num_args = 1;
-        return do_command(m, friendnum, num_args, args);
+        return do_command(m, friendnumber, num_args, args);
     /* } else if (strcmp(input, "help") == 0) { */
     /*     [> char * args[]={ <] */
     /*     [> char * args[TOX_MAX_MESSAGE_LENGTH]={ <] */
@@ -1315,7 +1316,7 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
     /*         "help", */
     /*     }; */
     /*     int num_args = 1; */
-    /*     return do_command(m, friendnum, num_args, args); */
+    /*     return do_command(m, friendnumber, num_args, args); */
     } else {
         return -1;
     }
