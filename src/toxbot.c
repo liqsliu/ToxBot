@@ -121,7 +121,7 @@ char *shorten_text(char *text)
         /** if (strlen(s) < len2) { */
         if (p-s < len2) {
             if (s[i] != '\n') {
-                *p = s[i];
+                *p = text[i];
             } else {
                 *p = '\\';
                 ++p;
