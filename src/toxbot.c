@@ -707,7 +707,7 @@ static void *my_daemon(void *mv)
                     len1 = 0;
                 }
             }
-            strcat(gmsgtmp, gsmg);
+            strcat(gmsgtmp, gmsg);
             len1 = strlen(gmsgtmp);
             gmsg[0] = '\0';
         }
