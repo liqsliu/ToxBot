@@ -442,7 +442,7 @@ int join_public_group_by_chat_id(Tox *m, char *chat_id)
         /** PUBLIC_GROUP_NUM = get_time(); */
         if (MY_NUM != UINT32_MAX) {
             char outmsg[TOX_MAX_MESSAGE_LENGTH];
-            snprintf(outmsg+strlen(outmsg), TOX_MAX_MESSAGE_LENGTH-1, "加入失败，public group number: %d, E: %s", res, tox_err_group_join_to_string(err));
+            snprintf(outmsg, TOX_MAX_MESSAGE_LENGTH-1, "加入失败，public group number: %d, E: %s", res, tox_err_group_join_to_string(err));
             tox_friend_send_message(m, MY_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         }
         return -1;
