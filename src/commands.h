@@ -24,6 +24,7 @@
 #define COMMANDS_H
 
 int execute(Tox *m, int friendnumber, const char *input, int length);
+void commands_init(void);
 
 #endif    /* COMMANDS_H */
 

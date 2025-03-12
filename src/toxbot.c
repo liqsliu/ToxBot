@@ -1228,22 +1228,21 @@ int main(int argc, char **argv)
     load_conferences(m);
     print_profile_info(m);
 
-// add by liqsliu
-PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
-pthread_t pthreads[1];
-int rc = pthread_create(&pthreads[0], NULL, my_daemon, (void *)m);
-if (rc != 0)
-{
-    log_timestamp("无法创建线程");
-}
-// add by liqsliu
-
     time_t cur_time = get_time();
 
     uint64_t last_friend_purge = cur_time;
     uint64_t last_group_purge = cur_time;
+
 // add by liqsliu
     uint64_t last_join = cur_time;
+    PUBLIC_GROUP_NUM = Tox_Bot.last_connected;
+    pthread_t pthreads[1];
+    int rc = pthread_create(&pthreads[0], NULL, my_daemon, (void *)m);
+    if (rc != 0)
+    {
+        log_timestamp("无法创建线程");
+    }
+    commands_init();
 // add by liqsliu
 
     while (!FLAG_EXIT) {
@@ -1280,7 +1279,7 @@ if (rc != 0)
     else if (joined_group == true)
     {
         last_join = cur_time;
-    } else if (cur_time - last_join > 5) {
+    } else if (cur_time - last_join > 15) {
         /** PUBLIC_GROUP_NUM == 0; */
         log_timestamp("join group");
         join_public_group(m);

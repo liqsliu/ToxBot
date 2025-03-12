@@ -45,6 +45,7 @@ extern struct Tox_Bot Tox_Bot;
 static struct CF {
     const char *name;
     void (*func)(Tox *m, uint32_t friendnum, int argc, char (*argv)[MAX_COMMAND_LENGTH]);
+    bool admin_only;
 };
 // add by liqsliu
 /* #define MAX_NUM_ARGS 16 //测试结果: 重复定义会以第二次定义的为准 */
@@ -1185,56 +1186,76 @@ int quick_sort(struct CF arr[], int len) {
 }
 
 struct CF commands[] = {
-    { "default",          cmd_default       },
+    { "default",          cmd_default, true       },
     { "group",            cmd_group         },
-    { "gmessage",         cmd_gmessage      },
+    { "gmessage",         cmd_gmessage, true      },
     { "help",             cmd_help          },
     { "id",               cmd_id            },
     { "info",             cmd_info          },
     { "invite",           cmd_invite        },
-    { "leave",            cmd_leave         },
-    { "master",           cmd_master        },
-    { "name",             cmd_name          },
-    { "passwd",           cmd_passwd        },
-    { "purge",            cmd_purge         },
-    { "status",           cmd_status        },
-    { "statusmessage",    cmd_statusmessage },
-    { "title",            cmd_title_set     },
+    { "leave",            cmd_leave, true         },
+    { "master",           cmd_master, true        },
+    { "name",             cmd_name, true          },
+    { "passwd",           cmd_passwd, true        },
+    { "purge",            cmd_purge, true         },
+    { "status",           cmd_status, true        },
+    { "statusmessage",    cmd_statusmessage, true },
+    { "title",            cmd_title_set, true     },
     { "init",            cmd_init     },
-    { "join",            cmd_join     },
-    { "rejoin",            cmd_rejoin     },
-    { "exit",            cmd_exit     },
+    { "join",            cmd_join, true     },
+    { "rejoin",            cmd_rejoin, true     },
+    { "exit",            cmd_exit, true     },
     { "list",            cmd_list     },
     /** { NULL,               NULL              }, */
 };
 
-static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX_COMMAND_LENGTH])
+
+static const uint8_t commands_len = sizeof(commands)/sizeof(commands[0]);
+static struct CF last_command;
+void commands_init(void)
 {
-    static int i; // static 可以做到保存上次查找到的位置，下次查找直接从该位置检查。如果命令相同，可以节省查找时间
     static bool commands_sorted = false;
-    static const int commands_len = sizeof(commands)/sizeof(commands[0]);
     if (commands_sorted == false)
     {
         log_timestamp("开始排序");
         quick_sort(commands, commands_len);
+        commands_sorted = true;
         log_timestamp("排序结束");
-        for (i = 0; i < commands_len; i++) {
+        for (int i = 0; i < commands_len; i++) {
             printf("%d %s\n", i+1, commands[i].name);
         }
         printf("\n\ncommands_len: %d\n", commands_len);
-        commands_sorted = true;
-        i = commands_len/2;
     }
-    int left=0, right=commands_len-1;
+    last_command = commands[commands_len/2];
+}
+static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX_COMMAND_LENGTH])
+{
+    // static 可以做到保存上次查找到的位置，下次查找直接从该位置检查。如果命令相同，可以节省查找时间
+    static int i=commands_len/2;
+    uint8_t left=0, right=commands_len-1;
     int r;
     while (left <= right)
     {
-        log_timestamp("check i: %d %s, %d %d", i, commands[i].name, left, right);
-        r = strcmp(args[0], commands[i].name);
+        /* log_timestamp("check i: %d %s, %d %d", i, commands[i].name, left, right); */
+        /* r = strcmp(args[0], commands[i].name); */
+        r = strcmp(args[0], last_command.name);
         if (r == 0) {
-            log_timestamp("hit cmd: %d %s", i, commands[i].name);
-            (commands[i].func)(m, friendnum, num_args - 1, args);
+            /* log_timestamp("hit cmd: %d %s", i, commands[i].name); */
+            /* if (commands[i].admin_only == true) { */
+            if (last_command.admin_only == true) {
+                if (!friend_is_master(m, friendnum)) {
+                    authent_failed(m, friendnum);
+                    log_timestamp("已忽略命令: %d: %s", friendnum, args[0]);
+                    /* return -2; */
+                    return 0;
+                }
+                /* if (MY_NUM == UINT32_MAX) { */
+                MY_NUM = friendnum;
+            }
+            /* (commands[i].func)(m, friendnum, num_args - 1, args); */
+            (last_command.func)(m, friendnum, num_args - 1, args);
             return 0;
+            
         }
         if (r > 0) {
             left = i+1;
@@ -1243,6 +1264,7 @@ static int do_command(Tox *m, uint32_t friendnum, int num_args, char (*args)[MAX
             right = i-1;
             i = (left+i-1)/2;
         }
+        last_command = commands[i];
     }
     log_timestamp("not found: %s, %d %d", args[0], left, right);
     /** for (size_t i = 0; commands[i].name; ++i) { */
@@ -1266,14 +1288,6 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
     }
     /** if (input[0] == '.' && input[1] != '\0') { */
     if (input[0] == '.') {
-        if (!friend_is_master(m, friendnum)) {
-            authent_failed(m, friendnum);
-            log_timestamp("已忽略命令: %d: %s", friendnum, input);
-            return -2;
-        }
-        if (MY_NUM == UINT32_MAX) {
-            MY_NUM = friendnum;
-        }
         char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH];
         int num_args = my_parse_command(&input[1], args);
         if (num_args == -1) {
@@ -1289,7 +1303,6 @@ int execute(Tox *m, uint32_t friendnum, const char *input, int length)
         /* char * args[TOX_MAX_MESSAGE_LENGTH]={ */
         char args[][TOX_MAX_MESSAGE_LENGTH]={
         /* char args[MAX_NUM_ARGS][MAX_COMMAND_LENGTH]={ */
-            "invite",
             "invite",
         };
         int num_args = 1;
