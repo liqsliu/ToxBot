@@ -367,6 +367,7 @@ int save_chat_ids(char *chat_ids)
         goto on_error;
     }
     fclose(fp);
+    log_timestamp("saved chat_ids");
     return 0;
 
 on_error:
