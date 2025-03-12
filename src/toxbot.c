@@ -458,7 +458,6 @@ int join_public_group_by_chat_id(Tox *m, char *chat_id)
 int join_public_group(Tox *m)
 {
     join_public_group_by_chat_id(m, CHAT_ID);
-    join_public_group_by_chat_id(m, CHAT_ID2);
 
     char *path="group_chat_ids";
     FILE *fp = NULL;
@@ -482,9 +481,6 @@ int join_public_group(Tox *m)
             break;
         }
         if (strcmp(chat_id, CHAT_ID) == 0) {
-            continue;
-        }
-        if (strcmp(chat_id, CHAT_ID2) == 0) {
             continue;
         }
         join_public_group_by_chat_id(m, chat_id);
