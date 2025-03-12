@@ -326,9 +326,11 @@ void sendg(Tox *m, char *gmsg, size_t len)
 void sendgp(Tox *m, char *gmsg, size_t len)
 {
     log_timestamp("send msg to tox: %s", gmsg);
-    TOX_ERR_CONFERENCE_SEND_MESSAGE err;
-    //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
-    tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
+    if (PUBLIC_GROUP_NUM == 0) {
+        TOX_ERR_CONFERENCE_SEND_MESSAGE err;
+        //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
+        tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
+    }
     if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK)
     {
        log_timestamp("failed send conference msg: %s: %s", tox_err_conference_send_message_to_string(err), gmsg);
@@ -658,7 +660,8 @@ static void *my_daemon(void *mv)
     Tox *m = (Tox *)mv;
     FILE *fd_gm;
     char gmsg[TOX_MAX_MESSAGE_LENGTH];
-    /* char gmsgtmp[TOX_MAX_MESSAGE_LENGTH]; */
+    char gmsgtmp[TOX_MAX_MESSAGE_LENGTH];
+    size_t len1, len;
     while(1)
     {
         /** fd_gm = popen("/run/user/1000/bot/gm_stream.sh", "r"); */
@@ -669,10 +672,13 @@ static void *my_daemon(void *mv)
             return 0;
         }
         log_timestamp("gm.sh is running...");
+        gmsg[0] = '\0';
+        gmsgtmp[0] = '\0';
+        len1 = strlen(gmsgtmp);
+        len = strlen(gmsg);
         while(1)
         {
             log_timestamp("my daemon is running...");
-            gmsg[0] = '\0';
             if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd_gm) == NULL)
             {
                 log_timestamp("got msg: %s", gmsg);
@@ -680,9 +686,34 @@ static void *my_daemon(void *mv)
                 break;
             }
             log_timestamp("got msg: %s", gmsg);
-            send_msg_from_mt_to_tox(m, gmsg, strlen(gmsg));
-
+            len = strlen(gmsg);
+            if (len1 > 0) {
+                if (strcmp(gmsg, "EOF_FOR_TOX") == 0) {
+                    log_timestamp("found EOF");
+                    if (len1 > 2) {
+                        if (gmsgtmp[len1-1] == '\n' && gmsgtmp[len1-2] == '\n') {
+                            gmsgtmp[len1-2] = '\0';
+                            send_msg_from_mt_to_tox(m, gmsgtmp, len1-2);
+                            log_timestamp("send last line: %s", gmsgtmp);
+                            gmsgtmp[0] = '\0';
+                            len1 = 0;
+                            continue;
+                        }
+                    }
+                }
+                if (len1+len > TOX_MAX_MESSAGE_LENGTH) {
+                    send_msg_from_mt_to_tox(m, gmsgtmp, len1);
+                    gmsgtmp[0] = '\0';
+                    len1 = 0;
+                }
+            }
+            strcat(gmsgtmp, gsmg);
+            len1 = strlen(gmsgtmp);
+            gmsg[0] = '\0';
         }
+        if (len1 > 0) {
+            /** send_msg_from_mt_to_tox(m, gmsg, strlen(gmsg)); */
+            send_msg_from_mt_to_tox(m, gmsgtmp, len1);
         pclose(fd_gm);
         log_timestamp("shell终止");
         sleep(1);
