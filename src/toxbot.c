@@ -648,6 +648,38 @@ static void cb_group_message(
 }
 
 
+uint8_t short_text_length = 64;
+
+char *shorten_text(char *text)
+{
+    size_t len = strlen(text), len2;
+    if (len2 < short_text_length) {
+        return text;
+    }
+    char s[short_text_length];
+    char s2[short_text_length];
+    sprintf(s2, "...%d/%d", short_text_length, len);
+    len2 =  short_text_length-1 - strlen(s2)
+    char *p=s;
+    for (int i=0; i<len; ++i) {
+        if (strlen(s) < len2) {
+            if (s[i] != '\n') {
+                *p = s[i];
+            } else {
+                *p = '\\';
+                ++p;
+                *p = 'n';
+            }
+        } else
+            break;
+        ++p;
+    }
+    sprintf(text, "%s%s", s, s2);
+    return text;
+
+}
+
+
 static void *my_daemon(void *mv)
 {
     while(PUBLIC_GROUP_NUM == Tox_Bot.last_connected)
@@ -679,11 +711,11 @@ static void *my_daemon(void *mv)
             log_timestamp("my daemon is running...");
             if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd) == NULL)
             {
-                log_timestamp("got msg: %s", gmsg);
+                log_timestamp("got msg: %s", shorten_text(gmsg));
                 log_timestamp("shell exit");
                 break;
             }
-            log_timestamp("got msg: %s", gmsg);
+            log_timestamp("got msg: %s", shorten_text(gmsg));
             len = strlen(gmsg);
             if (len1 > 0) {
                 if (strcmp(gmsg, "EOF_FOR_TOX\n") == 0) {
@@ -692,7 +724,7 @@ static void *my_daemon(void *mv)
                         if (gmsgtmp[len1-1] == '\n' && gmsgtmp[len1-2] == '\n') {
                             gmsgtmp[len1-2] = '\0';
                             send_msg_from_mt_to_tox(m, gmsgtmp, len1-2);
-                            log_timestamp("send last line: %s", gmsgtmp);
+                            log_timestamp("send last line: %s", shorten_text(gmsgtmp));
                             gmsgtmp[0] = '\0';
                             len1 = 0;
                             continue;
