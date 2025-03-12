@@ -371,7 +371,7 @@ void sendg(Tox *m, char *gmsg, size_t len)
     printf("sendg...\n");
     if (joined_group == true) {
         printf("sendg1\n");
-        log_timestamp("send msg to public group: %d, %s", PUBLIC_GROUP_NUM);
+        log_timestamp("send msg to public group: %d", PUBLIC_GROUP_NUM);
         printf("sendg2\n");
         logs(gmsg);
         printf("sendg3\n");
