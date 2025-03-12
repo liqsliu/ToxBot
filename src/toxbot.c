@@ -104,6 +104,37 @@ uint32_t PUBLIC_GROUP_NUM=0;
 uint32_t MY_NUM=UINT32_MAX;
 bool joined_group=false;
 /* #include <curl/curl.h> */
+uint8_t short_text_length = 64;
+
+char *shorten_text(char *text)
+{
+    size_t len = strlen(text);
+    if (len < short_text_length) {
+        return text;
+    }
+    char s[short_text_length];
+    char s2[short_text_length];
+    sprintf(s2, "...%d/%lu", short_text_length, len);
+    size_t len2 =  short_text_length-1 - strlen(s2);
+    char *p=s;
+    for (int i=0; i<len; ++i) {
+        /** if (strlen(s) < len2) { */
+        if (p-s < len2) {
+            if (s[i] != '\n') {
+                *p = s[i];
+            } else {
+                *p = '\\';
+                ++p;
+                *p = 'n';
+            }
+        } else
+            break;
+        ++p;
+    }
+    sprintf(text, "%s%s", s, s2);
+    return text;
+}
+
 // add by liqsliu
 
 /* Returns true if friendnumber's Tox ID is in the masterkeys list. */
@@ -642,37 +673,6 @@ static void cb_group_message(
     }
 }
 
-
-uint8_t short_text_length = 64;
-
-char *shorten_text(char *text)
-{
-    size_t len = strlen(text);
-    if (len < short_text_length) {
-        return text;
-    }
-    char s[short_text_length];
-    char s2[short_text_length];
-    sprintf(s2, "...%d/%lu", short_text_length, len);
-    size_t len2 =  short_text_length-1 - strlen(s2);
-    char *p=s;
-    for (int i=0; i<len; ++i) {
-        /** if (strlen(s) < len2) { */
-        if (p-s < len2) {
-            if (s[i] != '\n') {
-                *p = s[i];
-            } else {
-                *p = '\\';
-                ++p;
-                *p = 'n';
-            }
-        } else
-            break;
-        ++p;
-    }
-    sprintf(text, "%s%s", s, s2);
-    return text;
-}
 
 
 static void *my_daemon(void *mv)
