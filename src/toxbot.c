@@ -108,22 +108,22 @@ uint8_t short_text_length = 64;
 
 
 
-
-void logs2(const char *message, ...)
-{
-    char format[MAX_MESSAGE_SIZE];
-
-    va_list args;
-    va_start(args, message);
-    vsnprintf(format, sizeof(format), message, args);
-    va_end(args);
-
-    char ts[TIMESTAMP_SIZE];
-    strftime(ts, TIMESTAMP_SIZE,"[%H:%M:%S]", get_wall_time());
-
-    printf("%s %s\n", ts, format);
-}
-
+/*  */
+/* void logs2(const char *message, ...) */
+/* { */
+/*     char format[MAX_MESSAGE_SIZE]; */
+/*  */
+/*     va_list args; */
+/*     va_start(args, message); */
+/*     vsnprintf(format, sizeof(format), message, args); */
+/*     va_end(args); */
+/*  */
+/*     char ts[TIMESTAMP_SIZE]; */
+/*     strftime(ts, TIMESTAMP_SIZE,"[%H:%M:%S]", get_wall_time()); */
+/*  */
+/*     printf("%s %s\n", ts, format); */
+/* } */
+/*  */
 
 /** char *shorten_text(char *text) */
 void logs(const char *text)
