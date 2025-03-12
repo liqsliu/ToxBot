@@ -617,9 +617,7 @@ static void cb_conference_message(
         log_timestamp("忽略bot自己发的消息: %s [%s]: %s", title, name, text);
         return;
     }
-
-    if (idx == 0)
-    {
+    if (idx == 0) {
         log_timestamp("群消息: %s [%s]", title, name);
         logs(text);
         if (strcmp(name, "bot") != 0)
