@@ -356,7 +356,11 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     int n = tox_group_get_number_groups(m);
     log_timestamp("现在群数量: %d", n);
     if (n == 0)
-        sendme(m, "no connected group");
+    {
+        /* sendme(m, "no connected group"); */
+        const char * outmsg="no connected group";
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+    }
     else
     {
         char outmsg[TOX_MAX_MESSAGE_LENGTH]="found: ";
