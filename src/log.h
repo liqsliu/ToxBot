@@ -29,5 +29,7 @@ void log_timestamp(const char *message, ...);
 /* Print `message` with `err` to stderr prefixed with a timestamp */
 void log_error_timestamp(int err, const char *message, ...);
 
+void logs(const char *message, ...);
+
 #endif // LOG_H
 

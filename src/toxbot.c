@@ -104,67 +104,7 @@ uint32_t PUBLIC_GROUP_NUM=0;
 uint32_t MY_NUM=UINT32_MAX;
 bool joined_group=false;
 /* #include <curl/curl.h> */
-uint8_t short_text_length = 64;
 
-
-
-/*  */
-/* void logs2(const char *message, ...) */
-/* { */
-/*     char format[MAX_MESSAGE_SIZE]; */
-/*  */
-/*     va_list args; */
-/*     va_start(args, message); */
-/*     vsnprintf(format, sizeof(format), message, args); */
-/*     va_end(args); */
-/*  */
-/*     char ts[TIMESTAMP_SIZE]; */
-/*     strftime(ts, TIMESTAMP_SIZE,"[%H:%M:%S]", get_wall_time()); */
-/*  */
-/*     printf("%s %s\n", ts, format); */
-/* } */
-/*  */
-
-/** char *shorten_text(char *text) */
-void logs(const char *text)
-{
-    size_t len = strlen(text);
-    if (len < short_text_length) {
-        return;
-    }
-    if (len > TOX_MAX_MESSAGE_LENGTH) {
-        log_timestamp("len is too big: %lu", len);
-        len > TOX_MAX_MESSAGE_LENGTH;
-    }
-    char s[short_text_length];
-    char s2[short_text_length];
-    sprintf(s2, "...%d/%lu", short_text_length, len);
-    printf("s2: %s\n", s2);
-    size_t len2 =  short_text_length-1 - strlen(s2);
-    char *p=s;
-    for (int i=0; i<short_text_length; ++i) {
-        /** if (strlen(s) < len2) { */
-        if (p-s >= len2) {
-            break;
-        }
-        if (s[i] != '\n') {
-            *p = text[i];
-        } else {
-            *p = '\\';
-            ++p;
-            *p = 'n';
-        }
-        ++p;
-    }
-    *p = '\0';
-    printf("s: %s\n", s);
-    /** log_timestamp("s: %s", s); */
-    /** sprintf(text, "%s%s", s, s2); */
-    /** log_timestamp("text: %s", text); */
-    /** printf(text); */
-    /** return text; */
-    printf("%s%s\n", s, s2);
-}
 
 // add by liqsliu
 
@@ -368,19 +308,15 @@ void sendg(Tox *m, char *gmsg, size_t len)
 {
     /** log_timestamp("check...send msg to group: %s", gmsg); */
     /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
-    printf("sendg...\n");
     if (joined_group == true) {
-        printf("sendg1\n");
-        log_timestamp("send msg to public group: %d", PUBLIC_GROUP_NUM);
-        printf("sendg2\n");
-        logs(gmsg);
-        printf("sendg3\n");
+        /* log_timestamp("send msg to public group: %d", PUBLIC_GROUP_NUM); */
+        logs("send msg to public group: %d: %s", PUBLIC_GROUP_NUM, gmsg);
         Tox_Err_Group_Send_Message err2;
         /** if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2) != true) */
         tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2);
-        printf("sendg4\n");
         if (err2 != TOX_ERR_GROUP_SEND_MESSAGE_OK) {
-            log_timestamp("failed to send msg to group: %s", tox_err_group_send_message_to_string(err2));
+            /* log_timestamp("failed to send msg to group: %s", tox_err_group_send_message_to_string(err2)); */
+            logs("failed to send msg to group: %s", tox_err_group_send_message_to_string(err2));
          /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
          /** PUBLIC_GROUP_NUM = UINT32_MAX; */
             joined_group = false;
@@ -388,23 +324,25 @@ void sendg(Tox *m, char *gmsg, size_t len)
             log_timestamp("sent to group");
         }
 
+    } else {
+        log_timestamp("not in the public group");
     }
 }
 void sendgp(Tox *m, char *gmsg, size_t len)
 {
     printf("sendgp...\n");
     /* if (PUBLIC_GROUP_NUM == 0) { */
-        log_timestamp("send msg to conference");
-        log_timestamp("send msg to conference: %d", Tox_Bot.default_groupnum);
-        logs(gmsg);
-        TOX_ERR_CONFERENCE_SEND_MESSAGE err;
-        /* tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err); */
-        tox_conference_send_message(m, Tox_Bot.default_groupnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
-        if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK) {
-           log_timestamp("failed send conference msg: %s", tox_err_conference_send_message_to_string(err));
-        } else {
-            log_timestamp("sent to conference");
-        }
+    /* log_timestamp("send msg to conference: %d", Tox_Bot.default_groupnum); */
+    /* logs(gmsg); */
+    logs("send msg to conference: %d: %s", Tox_Bot.default_groupnum, gmsg);
+    TOX_ERR_CONFERENCE_SEND_MESSAGE err;
+    /* tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err); */
+    tox_conference_send_message(m, Tox_Bot.default_groupnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
+    if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK) {
+       log_timestamp("failed send conference msg: %s", tox_err_conference_send_message_to_string(err));
+    } else {
+        log_timestamp("sent to conference");
+    }
 }
 static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
 {
@@ -650,9 +588,9 @@ static void cb_conference_message(
         return;
     }
     if (idx == 0) {
-        log_timestamp("群消息: %s [%s]", title, name);
-        logs(text);
-        printf("logs ok\n");
+        /* log_timestamp("群消息: %s [%s]", title, name); */
+        /* logs(text); */
+        logs("群消息: %s [%s]: %s", title, name, text);
         if (strcmp(name, "bot") != 0)
         {
             char smsg[2048] = SM_SH_PATH;
@@ -694,7 +632,8 @@ static void cb_group_message(
 
     if (group_number == PUBLIC_GROUP_NUM)
     {
-        log_timestamp("ngc群消息: %s [%s]: %s", title, name, text);
+        /* log_timestamp("ngc群消息: %s [%s]: %s", title, name, text); */
+        logs("ngc群消息: %s [%s]: %s", title, name, text);
         if (strcmp(name, "bot") != 0)
         {
             char smsg[2048] = SM_SH_PATH;
