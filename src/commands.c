@@ -42,7 +42,11 @@ extern struct Tox_Bot Tox_Bot;
 /**     const char *name; */
 /**     void (*func)(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH]); */
 /** } commands[] = { */
-static struct CF { const char *name; void (*func)(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH]); bool admin_only; };
+static struct CF {
+    const char *name;
+    void (*func)(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH]);
+    bool admin_only;
+};
 // add by liqsliu
 /* #define MAX_NUM_ARGS 16 //测试结果: 重复定义会以第二次定义的为准 */
 #define MAX_GROUPS 64
