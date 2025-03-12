@@ -111,6 +111,7 @@ void logs(char *text)
 {
     size_t len = strlen(text);
     if (len < short_text_length) {
+        return;
         return text;
     }
     char s[short_text_length];
