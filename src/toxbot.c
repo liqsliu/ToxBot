@@ -132,6 +132,10 @@ void logs(const char *text)
     if (len < short_text_length) {
         return;
     }
+    if (len > TOX_MAX_MESSAGE_LENGTH) {
+        log_timestamp("len is too big: %lu", len);
+        len > TOX_MAX_MESSAGE_LENGTH;
+    }
     char s[short_text_length];
     char s2[short_text_length];
     sprintf(s2, "...%d/%lu", short_text_length, len);
