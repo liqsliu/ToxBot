@@ -468,8 +468,7 @@ int join_public_group(Tox *m)
     join_public_group_by_chat_id(m, CHAT_ID);
 
     char *path="group_chat_ids";
-    FILE *fp = NULL;
-    fp = fopen(path, "r");
+    FILE *fp = fopen(path, "r");
     if (fp == NULL) {
         log_error_timestamp(-1, "Warning: can't open file: %s", path);
         return -1;
@@ -484,6 +483,8 @@ int join_public_group(Tox *m)
             if (chat_id[len-1] == '\n') {
                 chat_id[len-1] = '\0';
                 log_timestamp("deleted \\n: %s", chat_id);
+            } else {
+                log_timestamp("read chat_id: %s", chat_id);
             }
         } else {
             break;
