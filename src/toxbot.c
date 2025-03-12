@@ -370,19 +370,23 @@ void sendg(Tox *m, char *gmsg, size_t len)
     /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
     printf("sendg...\n");
     if (joined_group == true) {
-      log_timestamp("send msg to public group: %d, %s", PUBLIC_GROUP_NUM);
-      logs(gmsg);
-      Tox_Err_Group_Send_Message err2;
-      /** if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2) != true) */
-      tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2);
-      if (err2 != TOX_ERR_GROUP_SEND_MESSAGE_OK) {
-        log_timestamp("failed to send msg to group: %s", tox_err_group_send_message_to_string(err2));
-       /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
-       /** PUBLIC_GROUP_NUM = UINT32_MAX; */
-        joined_group = false;
-      } else {
-        log_timestamp("sent to group");
-      }
+        printf("sendg1\n");
+        log_timestamp("send msg to public group: %d, %s", PUBLIC_GROUP_NUM);
+        printf("sendg2\n");
+        logs(gmsg);
+        printf("sendg3\n");
+        Tox_Err_Group_Send_Message err2;
+        /** if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2) != true) */
+        tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2);
+        printf("sendg4\n");
+        if (err2 != TOX_ERR_GROUP_SEND_MESSAGE_OK) {
+            log_timestamp("failed to send msg to group: %s", tox_err_group_send_message_to_string(err2));
+         /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
+         /** PUBLIC_GROUP_NUM = UINT32_MAX; */
+            joined_group = false;
+        } else {
+            log_timestamp("sent to group");
+        }
 
     }
 }
