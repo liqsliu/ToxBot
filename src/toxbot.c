@@ -659,7 +659,7 @@ char *shorten_text(char *text)
     char s[short_text_length];
     char s2[short_text_length];
     sprintf(s2, "...%d/%d", short_text_length, len);
-    len2 =  short_text_length-1 - strlen(s2)
+    len2 =  short_text_length-1 - strlen(s2);
     char *p=s;
     for (int i=0; i<len; ++i) {
         if (strlen(s) < len2) {
