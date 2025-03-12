@@ -387,18 +387,18 @@ void sendg(Tox *m, char *gmsg, size_t len)
 }
 void sendgp(Tox *m, char *gmsg, size_t len)
 {
-    if (PUBLIC_GROUP_NUM == 0) {
-        /* log_timestamp("send msg to conference: %d", Tox_Bot.default_groupnum); */
+    /* if (PUBLIC_GROUP_NUM == 0) { */
+        log_timestamp("send msg to conference");
+        log_timestamp("send msg to conference: %d", Tox_Bot.default_groupnum);
         logs(gmsg);
         TOX_ERR_CONFERENCE_SEND_MESSAGE err;
-        tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
-        /* tox_conference_send_message(m, Tox_Bot.default_groupnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err); */
+        /* tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err); */
+        tox_conference_send_message(m, Tox_Bot.default_groupnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
         if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK) {
            log_timestamp("failed send conference msg: %s", tox_err_conference_send_message_to_string(err));
         } else {
             log_timestamp("sent to conference");
         }
-    }
 }
 static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
 {
@@ -661,7 +661,7 @@ static void cb_conference_message(
             strcat(smsg, name);
             strcat(smsg, ":** ");
             strcat(smsg, (char *)text);
-            sendgp(m, smsg, strlen(smsg));
+            sendg(m, smsg, strlen(smsg));
         }
     } else {
         log_timestamp("忽略来自其他群的消息: %d %s [%s]: %s", idx, title, name, text);
@@ -702,7 +702,7 @@ static void cb_group_message(
             strcat(smsg, name);
             strcat(smsg, ":** ");
             strcat(smsg, (char *)text);
-            sendg(m, smsg, strlen(smsg));
+            sendgp(m, smsg, strlen(smsg));
         }
     } else {
         log_timestamp("忽略来自其他ngc群的消息: %d %s [%s]: %s", group_number, title, name, text);
