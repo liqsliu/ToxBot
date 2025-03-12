@@ -605,11 +605,13 @@ static void cb_conference_message(
     tox_conference_peer_get_name(m, conference_number, peer_number, (uint8_t *) name, NULL);
     size_t len = tox_conference_peer_get_name_size(m, conference_number, peer_number, NULL);
     name[len] = '\0';
+    log_timestamp("name: %s", name);
 
     char title[TOX_MAX_NAME_LENGTH];
     tox_conference_get_title(m, conference_number, (uint8_t *) title, NULL);
     len = tox_conference_get_title_size(m, conference_number, NULL);
     title[len] = '\0';
+    log_timestamp("title: %s", title);
 
     if (strcmp(name, BOT_NAME) == 0) {
         log_timestamp("忽略bot自己发的消息: %s [%s]: %s", title, name, text);
@@ -618,7 +620,8 @@ static void cb_conference_message(
 
     if (idx == 0)
     {
-        log_timestamp("群消息: %s [%s]: %s", title, name, text);
+        log_timestamp("群消息: %s [%s]", title, name);
+        logs(text);
         if (strcmp(name, "bot") != 0)
         {
             char smsg[2048] = SM_SH_PATH;
