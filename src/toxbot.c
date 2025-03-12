@@ -106,7 +106,8 @@ bool joined_group=false;
 /* #include <curl/curl.h> */
 uint8_t short_text_length = 64;
 
-char *shorten_text(char *text)
+/** char *shorten_text(char *text) */
+void logs(char *text)
 {
     size_t len = strlen(text);
     if (len < short_text_length) {
@@ -131,10 +132,12 @@ char *shorten_text(char *text)
         ++p;
     }
     *p = '\0';
-    log_timestamp("s: %s", s);
-    sprintf(text, "%s%s", s, s2);
-    log_timestamp("text: %s", text);
-    return text;
+    /** log_timestamp("s: %s", s); */
+    /** sprintf(text, "%s%s", s, s2); */
+    /** log_timestamp("text: %s", text); */
+    /** printf(text); */
+    /** return text; */
+    printf("%s%s\n", s, s2);
 }
 
 // add by liqsliu
@@ -340,17 +343,18 @@ void sendg(Tox *m, char *gmsg, size_t len)
     /** log_timestamp("check...send msg to group: %s", gmsg); */
     /** if (PUBLIC_GROUP_NUM != UINT32_MAX) */
     if (joined_group == true) {
-      log_timestamp("send msg to public group: %d, %s", PUBLIC_GROUP_NUM,  shorten_text(gmsg));
+      log_timestamp("send msg to public group: %d, %s", PUBLIC_GROUP_NUM);
+      logs(gmsg);
       Tox_Err_Group_Send_Message err2;
       /** if (tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2) != true) */
       tox_group_send_message(m, PUBLIC_GROUP_NUM, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err2);
       if (err2 != TOX_ERR_GROUP_SEND_MESSAGE_OK) {
-        log_timestamp("failed to send msg to group: %s: %s", tox_err_group_send_message_to_string(err2), shorten_text(gmsg));
+        log_timestamp("failed to send msg to group: %s", tox_err_group_send_message_to_string(err2));
        /** rejoin_public_group(m, PUBLIC_GROUP_NUM); */
        /** PUBLIC_GROUP_NUM = UINT32_MAX; */
         joined_group = false;
       } else {
-        log_timestamp("sent to group: %s", shorten_text(gmsg));
+        log_timestamp("sent to group");
       }
 
     }
@@ -358,14 +362,15 @@ void sendg(Tox *m, char *gmsg, size_t len)
 void sendgp(Tox *m, char *gmsg, size_t len)
 {
     /** if (PUBLIC_GROUP_NUM == 0) { */
-    log_timestamp("send msg to conference: %d: %s", Tox_Bot.default_groupnum, shorten_text(gmsg));
+    log_timestamp("send msg to conference: %d", Tox_Bot.default_groupnum);
+    logs(gmsg);
     TOX_ERR_CONFERENCE_SEND_MESSAGE err;
     //tox_conference_send_message(m, 0, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, strlen(gmsg), &err);
     tox_conference_send_message(m, Tox_Bot.default_groupnum, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)gmsg, len, &err);
     if (err != TOX_ERR_CONFERENCE_SEND_MESSAGE_OK) {
-       log_timestamp("failed send conference msg: %s: %s", tox_err_conference_send_message_to_string(err), shorten_text(gmsg));
+       log_timestamp("failed send conference msg: %s", tox_err_conference_send_message_to_string(err));
     } else {
-        log_timestamp("sent to conference: %s", shorten_text(gmsg));
+        log_timestamp("sent to conference");
     }
 }
 static void send_msg_from_mt_to_tox(Tox *m, char *gmsg, size_t len)
@@ -708,11 +713,13 @@ static void *my_daemon(void *mv)
             log_timestamp("my daemon is running...");
             if (fgets(gmsg, TOX_MAX_MESSAGE_LENGTH, fd) == NULL)
             {
-                log_timestamp("got msg: %s", shorten_text(gmsg));
+                log_timestamp("got msg:");
+                logs(gmsg);
                 log_timestamp("shell exit");
                 break;
             }
-            log_timestamp("got msg: %s", shorten_text(gmsg));
+            log_timestamp("got msg:");
+            logs(gmsg);
             len = strlen(gmsg);
             if (len1 > 0) {
                 if (strcmp(gmsg, "EOF_FOR_TOX\n") == 0) {
@@ -720,7 +727,8 @@ static void *my_daemon(void *mv)
                     if (len1 > 1) {
                         if (gmsgtmp[len1-1] == '\n' && gmsgtmp[len1-2] == '\n') {
                             gmsgtmp[len1-2] = '\0';
-                            log_timestamp("send last line: %s", shorten_text(gmsgtmp));
+                            log_timestamp("send last line:");
+                            logs(gmsgtmp);
                             send_msg_from_mt_to_tox(m, gmsgtmp, len1-2);
                             /** if (len1 != 2) { */
                             /** } else { */
