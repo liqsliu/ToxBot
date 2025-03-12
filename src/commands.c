@@ -429,7 +429,7 @@ static void cmd_save(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
 static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
 {
     int n = tox_group_get_number_groups(m);
-    log_timestamp("现在群数量: %d", n);
+    log_timestamp("现在public群数量: %d", n);
     if (n == 0)
     {
         /* sendme(m, "no connected group"); */
@@ -438,7 +438,7 @@ static void cmd_list(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     }
     else
     {
-        char outmsg[TOX_MAX_MESSAGE_LENGTH]="found: ";
+        char outmsg[TOX_MAX_MESSAGE_LENGTH]="connected public groups: ";
         sprintf(outmsg+strlen(outmsg), "%d", n);
         tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         outmsg[0] = '\0';
@@ -524,10 +524,17 @@ static void cmd_join(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     } else {
         chat_id = argv[1];
     }
+    if (strlen(chat_id) < 32) {
+        char *outmsg="wrong chat_id";
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
+        return;
+    }
     if (join_public_group_by_chat_id(m, chat_id) == 0) {
-        sendme(m, "ok");
+        char *outmsg="ok";
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     } else {
-        sendme(m, "failed");
+        char *outmsg="failed";
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
     }
 }
 static void cmd_init(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
@@ -589,8 +596,7 @@ static void cmd_info(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
     size_t num_chats = tox_conference_get_chatlist_size(m);
 
     if (num_chats == 0) {
-        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "No active groupchats",
-                                strlen("No active groupchats"), NULL);
+        tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) "No active groupchats", strlen("No active groupchats"), NULL);
         return;
     }
 
@@ -613,6 +619,7 @@ static void cmd_info(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_C
             tox_friend_send_message(m, friendnumber, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) outmsg, strlen(outmsg), NULL);
         }
     }
+    cmd_list(m, friendnumber, argc, argv);
 }
 
 static void cmd_invite(Tox *m, uint32_t friendnumber, int argc, char (*argv)[MAX_COMMAND_LENGTH])
@@ -1255,7 +1262,7 @@ struct CF commands[] = {
     { "statusmessage",    cmd_statusmessage, true },
     { "title",            cmd_title_set, true     },
     { "init",            cmd_init     },
-    { "join",            cmd_join, true     },
+    { "join",            cmd_join     },
     { "save",            cmd_save, true     },
     { "rejoin",            cmd_rejoin, true     },
     { "exit",            cmd_exit, true     },
