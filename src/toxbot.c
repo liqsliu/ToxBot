@@ -888,6 +888,7 @@ static Tox *load_tox(struct Tox_Options *options, char *path)
 
     if (err != TOX_ERR_NEW_OK) {
         fprintf(stderr, "tox_new failed2 with error %d\n", err);
+        printf("TOX_ERR_NEW_PORT_ALLOC: %d\n", TOX_ERR_NEW_PORT_ALLOC)
         return NULL;
     }
 
