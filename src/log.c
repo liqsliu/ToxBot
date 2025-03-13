@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include <string.h>
+
 #include "misc.h"
 
 #define TIMESTAMP_SIZE 64
