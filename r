@@ -5,7 +5,6 @@
 (
 cd ~/ToxBot || exit 1
 while true; do
-r=0
 Tgpp
 make || exit 1
 ./toxbot
