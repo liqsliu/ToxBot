@@ -1212,11 +1212,9 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
         /* log_timestamp("j: %d\n", j); */
         /* log_timestamp("jj: %d\n", jj); */
         if (need_escape2 == true) {
-            args[num_args][i] = ' ';
-            ++i;
+            args[num_args][jj+i-1] = ' ';
             args[num_args][jj+i] = '\0';
             log_timestamp("add tmp: |%s|", args[num_args]);
-            ++i;
         } else {
             args[num_args][jj+i] = '\0';
             log_timestamp("add: |%s|", args[num_args]);
