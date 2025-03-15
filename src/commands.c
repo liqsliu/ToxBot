@@ -1126,9 +1126,6 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
 
     /* characters wrapped in double quotes count as one arg */
     int j, cmd_l, qq_n=0;
-    char qq1 = '\"';
-    char qq2 = '\'';
-    char qq = '\\'; // 不要改动，否则下面要增加代码。
     char c;
     bool need_escape;
     bool in_quote;
@@ -1208,15 +1205,14 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
         /* memcpy(args[num_args], cmd, i); */
         /* args[num_args++][i] = '\0'; */
         memcpy(p, cmd, i);
+        args[num_args][p-args[num_args]+i] = '\0';
         if (need_escape2 == true) {
             /* args[num_args][i] = ' '; */
             /* ++i; */
-            args[num_args][i] = '\0';
             log_timestamp("add tmp: %s", args[num_args]);
 
             /* ++i; */
         } else {
-            args[num_args][i] = '\0';
             log_timestamp("add: %s", args[num_args]);
             ++num_args;
         }
