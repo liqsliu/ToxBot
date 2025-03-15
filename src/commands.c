@@ -1130,40 +1130,62 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     char qq2 = '\'';
     char qq = '\\'; // 不要改动，否则下面要增加代码。
     char c;
-    bool need_escape=false;
+    bool need_escape;
+    bool in_quote;
+    bool need_escape2;
+    char *p;
     while (num_args < MAX_NUM_ARGS) {
-        int qt_ofst = 0;    /* set to 1 to offset index for quote char at end of arg */
+        /* int qt_ofst = 0;    [> set to 1 to offset index for quote char at end of arg <] */
+        if (need_escape2 == true) {
+            p = args[num_args] + strlen(args[num_args])
+        } else {
+            p = args[num_args]
+        }
 
         cmd_l = strlen(cmd);
+        in_quote=false;
+        need_escape=false;
+        need_escape2=false;
         for (j=0; j<cmd_l; ++j)
         {
-            if (need_escape == true)
-            {
-                need_escape = false;
-                continue;
-            }
             c = cmd[j];
-            if (c == '\\') {
-                need_escape = true;
-                continue;
-            }
-            if (c == qq) {
-                if (c == qq1) {
-                    qq = qq2;
-                } else if (c == qq2) {
-                    qq = qq1;
-                }
-                qq_n--;
-            } else if (c == qq1) {
-                qq = qq1;
-                qq_n++;
-            } else if (c == qq2) {
-                qq = qq2;
-                qq_n++;
-            } else if (qq_n == 0) {
-                if (c == ' ')
+            if (need_escape == true) {
+                need_escape = false;
+                if (c == ' ' && in_quote == false) {
+                    need_escape2 = true;
+                    --i;
                     break;
+                }
+            } else if (in_quote == true) {
+                if (c == '"') {
+                    in_quote=false;
+                }
+            } else {
+                if (c == '\\') {
+                    need_escape = true;
+                } else if (c == '"') {
+                    in_quote=true;
+                } else if (c == ' ') {
+                    break
+                }
             }
+            /* if (c == qq) { */
+            /*     if (c == qq1) { */
+            /*         qq = qq2; */
+            /*     } else if (c == qq2) { */
+            /*         qq = qq1; */
+            /*     } */
+            /*     qq_n--; */
+            /* } else if (c == qq1) { */
+            /*     qq = qq1; */
+            /*     qq_n++; */
+            /* } else if (c == qq2) { */
+            /*     qq = qq2; */
+            /*     qq_n++; */
+            /* } else if (qq_n == 0) { */
+            /*     if (c == ' ') */
+            /*         break; */
+            /* } */
             
         }
         i = j;
@@ -1180,8 +1202,21 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
         /**     i = char_find(0, cmd, ' '); */
         /** } */
 
-        memcpy(args[num_args], cmd, i + qt_ofst);
-        args[num_args++][i + qt_ofst] = '\0';
+        /* memcpy(args[num_args], cmd, i + qt_ofst); */
+        /* args[num_args++][i + qt_ofst] = '\0'; */
+
+        /* memcpy(args[num_args], cmd, i); */
+        memcpy(p, cmd, i);
+        if (need_escape2 == true) {
+            args[num_args][i] = ' ';
+
+            ++i;
+            args[num_args][i] = '\0';
+
+            ++i;
+        } else {
+            args[num_args++][i] = '\0';
+        }
 
         if (cmd[i] == '\0') {  /* no more args */
             break;
