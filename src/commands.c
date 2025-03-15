@@ -1166,7 +1166,7 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
                 } else if (c == '"') {
                     in_quote=true;
                 } else if (c == ' ') {
-                    break
+                    break;
                 }
             }
             /* if (c == qq) { */
