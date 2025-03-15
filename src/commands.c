@@ -1125,7 +1125,7 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     int i = 0;    /* index of last char in an argument */
 
     /* characters wrapped in double quotes count as one arg */
-    int j, cmd_l, jj;
+    int j, cmd_l, jj=0;
     char c;
     bool need_escape;
     bool in_quote;
@@ -1133,14 +1133,13 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     /* char *p; */
     while (num_args < MAX_NUM_ARGS) {
         /* int qt_ofst = 0;    [> set to 1 to offset index for quote char at end of arg <] */
-        if (need_escape2 == true) {
+        /* if (need_escape2 == true) { */
             /* p = args[num_args] + strlen(args[num_args]); */
-            jj += j;
-        } else {
+            /* jj += j; */
+        /* } else { */
             /* p = args[num_args]; */
-            jj = 0;
-        }
-
+            /* jj = 0; */
+        /* } */
         cmd_l = strlen(cmd);
         in_quote=false;
         need_escape=false;
@@ -1168,24 +1167,6 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
                     break;
                 }
             }
-            /* if (c == qq) { */
-            /*     if (c == qq1) { */
-            /*         qq = qq2; */
-            /*     } else if (c == qq2) { */
-            /*         qq = qq1; */
-            /*     } */
-            /*     qq_n--; */
-            /* } else if (c == qq1) { */
-            /*     qq = qq1; */
-            /*     qq_n++; */
-            /* } else if (c == qq2) { */
-            /*     qq = qq2; */
-            /*     qq_n++; */
-            /* } else if (qq_n == 0) { */
-            /*     if (c == ' ') */
-            /*         break; */
-            /* } */
-            
         }
         i = j;
 
@@ -1215,10 +1196,12 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
             args[num_args][jj+i-1] = ' ';
             args[num_args][jj+i] = '\0';
             log_timestamp("add tmp: |%s|", args[num_args]);
+            jj += j;
         } else {
             args[num_args][jj+i] = '\0';
             log_timestamp("add: |%s|", args[num_args]);
             ++num_args;
+            jj = 0;
         }
 
         if (cmd[i] == '\0') {  /* no more args */
