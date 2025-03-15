@@ -1137,9 +1137,9 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     while (num_args < MAX_NUM_ARGS) {
         /* int qt_ofst = 0;    [> set to 1 to offset index for quote char at end of arg <] */
         if (need_escape2 == true) {
-            p = args[num_args] + strlen(args[num_args])
+            p = args[num_args] + strlen(args[num_args]);
         } else {
-            p = args[num_args]
+            p = args[num_args];
         }
 
         cmd_l = strlen(cmd);
