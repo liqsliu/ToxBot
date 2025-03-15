@@ -1206,19 +1206,23 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
         /* args[num_args++][i + qt_ofst] = '\0'; */
 
         /* memcpy(args[num_args], cmd, i); */
+        /* args[num_args++][i] = '\0'; */
         memcpy(p, cmd, i);
         if (need_escape2 == true) {
-            args[num_args][i] = ' ';
-
-            ++i;
+            /* args[num_args][i] = ' '; */
+            /* ++i; */
             args[num_args][i] = '\0';
+            log_timestamp("add tmp: %s", args[num_args]);
 
-            ++i;
+            /* ++i; */
         } else {
-            args[num_args++][i] = '\0';
+            args[num_args][i] = '\0';
+            log_timestamp("add: %s", args[num_args]);
+            ++num_args;
         }
 
         if (cmd[i] == '\0') {  /* no more args */
+            log_timestamp("end");
             break;
         }
 
@@ -1232,7 +1236,7 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     log_timestamp("length: %d", num_args);
     printf("args:");
     for (i=0; i<num_args; ++i) {
-        printf(" \"%s\"", args[i]);
+        printf("\n> %s", args[i]);
     }
     printf("\n");
     return num_args; // 注意：执行命令函数时，该变量已经减一，可以看作是参数的个数，不包含命令本身。
