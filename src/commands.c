@@ -1214,10 +1214,10 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
         log_timestamp("jj: %d\n", jj);
         if (need_escape2 == true) {
             /* args[num_args][i] = ' '; */
-            log_timestamp("add tmp: %s", args[num_args]);
+            log_timestamp("add tmp: |%s|", args[num_args]);
             ++i;
         } else {
-            log_timestamp("add: %s", args[num_args]);
+            log_timestamp("add: |%s|", args[num_args]);
             ++num_args;
         }
 
