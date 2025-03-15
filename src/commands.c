@@ -1207,10 +1207,10 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
         /* memcpy(args[num_args], cmd, i); */
         /* args[num_args++][i] = '\0'; */
         memcpy(args[num_args]+jj, cmd, i);
-        /* log_timestamp("num_args: %d\n", num_args); */
-        /* log_timestamp("i: %d\n", i); */
-        /* log_timestamp("j: %d\n", j); */
-        /* log_timestamp("jj: %d\n", jj); */
+        log_timestamp("num_args: %d\n", num_args);
+        log_timestamp("i: %d\n", i);
+        log_timestamp("j: %d\n", j);
+        log_timestamp("jj: %d\n", jj);
         if (need_escape2 == true) {
             args[num_args][jj+i-1] = ' ';
             args[num_args][jj+i] = '\0';
