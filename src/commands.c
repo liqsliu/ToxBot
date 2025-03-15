@@ -1125,18 +1125,20 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     int i = 0;    /* index of last char in an argument */
 
     /* characters wrapped in double quotes count as one arg */
-    int j, cmd_l, qq_n=0;
+    int j, cmd_l, qq_n=0, jj;
     char c;
     bool need_escape;
     bool in_quote;
     bool need_escape2;
-    char *p;
+    /* char *p; */
     while (num_args < MAX_NUM_ARGS) {
         /* int qt_ofst = 0;    [> set to 1 to offset index for quote char at end of arg <] */
         if (need_escape2 == true) {
-            p = args[num_args] + strlen(args[num_args]);
+            /* p = args[num_args] + strlen(args[num_args]); */
+            jj += j;
         } else {
-            p = args[num_args];
+            /* p = args[num_args]; */
+            jj = 0;
         }
 
         cmd_l = strlen(cmd);
@@ -1204,21 +1206,18 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
 
         /* memcpy(args[num_args], cmd, i); */
         /* args[num_args++][i] = '\0'; */
-        memcpy(p, cmd, i);
-        args[num_args][p-args[num_args]+i] = '\0';
+        memcpy(args[num_args]+jj, cmd, i);
+        args[num_args][jj+i] = '\0';
         if (need_escape2 == true) {
             /* args[num_args][i] = ' '; */
-            /* ++i; */
+            ++i;
             log_timestamp("add tmp: %s", args[num_args]);
-
-            /* ++i; */
         } else {
             log_timestamp("add: %s", args[num_args]);
             ++num_args;
         }
 
         if (cmd[i] == '\0') {  /* no more args */
-            log_timestamp("end");
             break;
         }
 
