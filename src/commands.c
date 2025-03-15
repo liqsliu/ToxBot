@@ -1125,7 +1125,7 @@ static int my_parse_command(const char *input, char (*args)[MAX_COMMAND_LENGTH])
     int i = 0;    /* index of last char in an argument */
 
     /* characters wrapped in double quotes count as one arg */
-    int j, cmd_l, qq_n=0, jj;
+    int j, cmd_l, jj;
     char c;
     bool need_escape;
     bool in_quote;
